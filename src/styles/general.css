@@ -1,3 +1,315 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+
+:root {
+  --morado-principal: #6d28d9;
+  --morado-secundario: #7c3aed;
+  --morado-suave: #f3e8ff;
+  --texto-principal: #111827;
+  --texto-secundario: #6b7280;
+  --borde-suave: #ececf3;
+  --fondo-app: #f5f7fb;
+  --fondo-panel: #ffffff;
+  --sombra-suave: 0 10px 30px rgba(17, 24, 39, 0.08);
+  --sombra-hover: 0 16px 40px rgba(17, 24, 39, 0.12);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--fondo-app);
+  color: var(--texto-principal);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-morado {
+  color: var(--morado-principal);
+}
+
+.fondo-panel {
+  background: linear-gradient(180deg, #f8f9fc 0%, #eef2f9 100%);
+}
+
+.sidebar-panel {
+  width: 280px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8fd 100%);
+  border-right: 1px solid var(--borde-suave);
+  padding: 24px 18px;
+  position: sticky;
+  top: 0;
+}
+
+.logo-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.logo-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--morado-secundario), var(--morado-principal));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(109, 40, 217, 0.25);
+}
+
+.logo-texto h4 {
+  margin: 0;
+  color: var(--morado-principal);
+  font-weight: 800;
+}
+
+.logo-texto span {
+  color: var(--texto-secundario);
+  font-size: 14px;
+}
+
+.menu-seccion-titulo {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin: 18px 10px 10px;
+  font-weight: 700;
+}
+
+.menu-lateral {
+  display: grid;
+  gap: 8px;
+}
+
+.menu-lateral-btn {
+  border: 0;
+  background: transparent;
+  border-radius: 16px;
+  padding: 14px 14px;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.menu-lateral-btn:hover {
+  background-color: #f5f3ff;
+  color: var(--morado-principal);
+}
+
+.menu-lateral-btn.activo {
+  background: linear-gradient(135deg, var(--morado-secundario), var(--morado-principal));
+  color: white;
+  box-shadow: 0 12px 24px rgba(109, 40, 217, 0.22);
+}
+
+.menu-icono {
+  font-size: 18px;
+}
+
+.tarjeta-lateral {
+  margin-top: auto;
+  background: linear-gradient(135deg, #1f1147, #3b1d7a);
+  color: white;
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 18px 35px rgba(31, 17, 71, 0.28);
+}
+
+.tarjeta-lateral .progress {
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.tarjeta-lateral .progress-bar {
+  background: linear-gradient(90deg, #c084fc, #ffffff);
+}
+
+.barra-superior-panel {
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--borde-suave);
+  padding: 22px 30px;
+}
+
+.encabezado-derecha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.buscador-panel {
+  position: relative;
+}
+
+.buscador-panel input {
+  border: 1px solid var(--borde-suave);
+  border-radius: 14px;
+  padding: 12px 14px 12px 42px;
+  min-width: 260px;
+  background: white;
+  outline: none;
+}
+
+.buscador-icono {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.avatar-panel {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--morado-secundario), var(--morado-principal));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(109, 40, 217, 0.2);
+}
+
+.tarjeta-bienvenida {
+  background: linear-gradient(135deg, #6d28d9, #4c1d95);
+  color: white;
+  border-radius: 28px;
+  box-shadow: 0 20px 45px rgba(76, 29, 149, 0.28);
+  overflow: hidden;
+  position: relative;
+}
+
+.tarjeta-bienvenida::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -30px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.tarjeta-resumen {
+  border: 0;
+  border-radius: 22px;
+  background: white;
+  box-shadow: var(--sombra-suave);
+  overflow: hidden;
+}
+
+.icono-resumen {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #f5f3ff;
+  color: var(--morado-principal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.tarjeta-habito {
+  border: 0;
+  border-radius: 24px;
+  background: white;
+  box-shadow: var(--sombra-suave);
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.tarjeta-habito:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sombra-hover);
+}
+
+.etiqueta-categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: var(--morado-suave);
+  color: var(--morado-principal);
+}
+
+.tarjeta-info-mini {
+  background: #f9fafb;
+  border: 1px solid #f0f2f6;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.progreso-personalizado {
+  height: 10px;
+  border-radius: 999px;
+  background-color: #ececf6;
+  overflow: hidden;
+}
+
+.progreso-personalizado .progress-bar {
+  background: linear-gradient(90deg, var(--morado-secundario), var(--morado-principal));
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--morado-secundario), var(--morado-principal));
+  border: none;
+  border-radius: 14px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6d28d9, #5b21b6);
+}
+
+.btn-suave {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  border-radius: 12px;
+}
+
+.btn-suave:hover {
+  background: #f3f4f6;
+}
+
+.seccion-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+  .sidebar-panel {
+    display: none;
+  }
+
+  .buscador-panel input {
+    min-width: 180px;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
