@@ -1,6 +1,12 @@
-import { FiBell, FiSearch } from 'react-icons/fi';
+import { FiBell, FiSearch, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 function BarraSuperiorPanel() {
+  const navigate = useNavigate();
+  const handleCerrarSesion = () => {
+    navigate('/');
+  };
+
   return (
     <div className="barra-superior-panel d-flex justify-content-between align-items-center flex-wrap gap-3">
       <div>
@@ -25,6 +31,15 @@ function BarraSuperiorPanel() {
         </div>
 
         <div className="avatar-panel">U</div>
+
+        <button 
+          className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
+          style={{ width: '46px', height: '46px' }}
+          title="Cerrar sesión"
+          onClick={handleCerrarSesion}
+        >
+          <FiLogOut />
+        </button>
       </div>
     </div>
   );

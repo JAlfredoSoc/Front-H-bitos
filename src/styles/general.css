@@ -325,3 +325,70 @@ body {
   background-color: #4a1797;
   border-color: #4a1797;
 }
+
+.tarjeta-habito-color {
+  border-left: 6px solid transparent;
+}
+
+.categoria-salud {
+  border-left-color: #0d6efd !important;
+}
+
+.categoria-bienestar {
+  border-left-color: #198754 !important;
+}
+
+.categoria-estudio {
+  border-left-color: #6f42c1 !important;
+}
+
+.categoria-productividad {
+  border-left-color: #fd7e14 !important;
+}
+
+.categoria-trabajo {
+  border-left-color: #495057 !important;
+}
+
+.categoria-relaciones {
+  border-left-color: #d63384 !important;
+}
+
+.categoria-general {
+  border-left-color: #6c757d !important;
+}
+
+.etiqueta-categoria.categoria-salud {
+  background-color: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+}
+
+.etiqueta-categoria.categoria-bienestar {
+  background-color: rgba(25, 135, 84, 0.12);
+  color: #198754;
+}
+
+.etiqueta-categoria.categoria-estudio {
+  background-color: rgba(111, 66, 193, 0.12);
+  color: #6f42c1;
+}
+
+.etiqueta-categoria.categoria-productividad {
+  background-color: rgba(253, 126, 20, 0.12);
+  color: #fd7e14;
+}
+
+.etiqueta-categoria.categoria-trabajo {
+  background-color: rgba(73, 80, 87, 0.12);
+  color: #495057;
+}
+
+.etiqueta-categoria.categoria-relaciones {
+  background-color: rgba(214, 51, 132, 0.12);
+  color: #d63384;
+}
+
+.etiqueta-categoria.categoria-general {
+  background-color: rgba(108, 117, 125, 0.12);
+  color: #6c757d;
+}
