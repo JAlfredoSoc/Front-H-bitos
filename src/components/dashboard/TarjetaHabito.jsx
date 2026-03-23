@@ -40,6 +40,16 @@ function TarjetaHabito({
     });
   };
 
+  const formatearHora = (fecha) => {
+    if (!fecha) return '';
+
+    return new Date(fecha).toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
     <div className={`card tarjeta-habito tarjeta-habito-color ${claseCategoria} h-100`}>
       <div className="card-body p-4 d-flex flex-column">
@@ -59,7 +69,7 @@ function TarjetaHabito({
               <small className="text-muted d-block mb-1">Hora</small>
               <div className="fw-semibold d-flex align-items-center gap-2">
                 <FiClock />
-                <span>{habito.horario || 'Sin hora'}</span>
+                <span>{formatearHora(habito.horario) || 'Sin hora'}</span>
               </div>
             </div>
           </div>

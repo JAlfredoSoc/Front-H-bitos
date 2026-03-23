@@ -217,6 +217,16 @@ function PanelPrincipal() {
     });
   };
 
+  const formatearHora = (fecha) => {
+    if (!fecha) return '';
+
+    return new Date(fecha).toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: '100vh' }}>
       <BarraLateralPanel seccionActiva={seccionActiva} cambiarSeccion={cambiarSeccion} />
@@ -394,7 +404,7 @@ function PanelPrincipal() {
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
                       <small className="text-muted d-block mb-1">Horario</small>
-                      <div className="fw-semibold">{detalleHabito.horario || 'No definido'}</div>
+                      <div className="fw-semibold">{formatearHora(detalleHabito.horario) || 'No definido'}</div>
                     </div>
                   </div>
 
