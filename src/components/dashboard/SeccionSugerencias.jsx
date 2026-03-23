@@ -2,14 +2,29 @@
 import { useState, useEffect } from 'react';
 import TarjetaSugerencia from './TarjetaSugerencia';
 import { getObtenerSugerencias } from '../../../src/service/habitoService';
+import {obtenerCategorias} from '../../service/categoriaService'
 
 function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
   const [sugerencias, setSugerencias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     cargarSugerencias();
+  }, []);
+
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      const res = await obtenerCategorias();
+
+      if (res.success) {
+        setCategorias(res.data);
+      }
+    };
+
+    cargarCategorias();
   }, []);
 
   const cargarSugerencias = async () => {
@@ -29,12 +44,18 @@ function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
   };
 
   // Filtrar sugerencias que no estén ya en hábitos actuales
-  const sugerenciasDisponibles = sugerencias.filter(
-    (sugerencia) =>
+  const sugerenciasDisponibles = sugerencias
+    .filter((sugerencia) =>
       !habitosActuales?.some(
-        (habito) => habito.nombre?.toLowerCase() === sugerencia.nombre?.toLowerCase()
+        (habito) =>
+          habito.nombre?.toLowerCase() === sugerencia.nombre?.toLowerCase()
       )
-  );
+    )
+    .filter((sugerencia) => {
+      if (!categoriaSeleccionada) return true;
+
+      return sugerencia.categoria?._id === categoriaSeleccionada;
+  });
 
   if (cargando) {
     return (
@@ -65,6 +86,8 @@ function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
             Explora nuevos hábitos recomendados y agrega los que mejor se adapten a tu rutina diaria.
           </p>
         </section>
+
+        
         
         <div className="alert alert-danger" role="alert">
           <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -88,6 +111,22 @@ function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
           Explora nuevos hábitos recomendados y agrega los que mejor se adapten a tu rutina diaria.
         </p>
       </section>
+
+      <div className="mb-4">
+        <select
+          className="form-select"
+          value={categoriaSeleccionada}
+          onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+        >
+          <option value="">Todas las categorías</option>
+
+          {categorias.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.nombreCategoria}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <section>
         {sugerenciasDisponibles.length > 0 ? (
