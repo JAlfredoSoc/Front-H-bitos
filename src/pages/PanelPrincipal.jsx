@@ -84,7 +84,6 @@ function PanelPrincipal() {
       horario: datosProcesados.horario,
       fechaInicio: datosProcesados.fechaInicio,
       fechaFin: datosProcesados.fechaFin,
-      racha: '0 días',
       fechaCreacion: obtenerFechaActual(),
       progreso: 0
     };
@@ -127,12 +126,12 @@ function PanelPrincipal() {
         if (habito.id !== id) return habito;
 
         const nuevoProgreso = habito.progreso >= 100 ? 100 : habito.progreso + 10;
-        const numeroRacha = parseInt(habito.racha, 10) || 0;
+        // const numeroRacha = parseInt(habito.racha, 10) || 0;
 
         return {
           ...habito,
           progreso: nuevoProgreso,
-          racha: `${numeroRacha + 1} días`
+          // racha: `${numeroRacha + 1} días`
         };
       })
     );
@@ -192,7 +191,7 @@ function PanelPrincipal() {
           horario: h.horario,
           fechaInicio: h.fechaInicio,
           fechaFin: h.fechaFin,
-          racha: `${h.progreso?.progreso || 0} días`,
+          // racha: `${h.progreso?.progreso || 0} días`,
           progreso: h.progreso?.progreso || 0,
           frecuencia: h.progreso?.frecuencia,
           periodo: h.progreso?.periodo
@@ -357,7 +356,7 @@ function PanelPrincipal() {
                   horario: h.horario,
                   fechaInicio: h.fechaInicio,
                   fechaFin: h.fechaFin,
-                  racha: `${h.progreso?.progreso || 0} días`,
+                  // racha: `${h.progreso?.progreso || 0} días`,
                   progreso: h.progreso?.progreso || 0
                 }));
 
@@ -410,8 +409,8 @@ function PanelPrincipal() {
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
-                      <small className="text-muted d-block mb-1">Racha</small>
-                      <div className="fw-semibold">{detalleHabito.racha}</div>
+                      {/* <small className="text-muted d-block mb-1">Racha</small> */}
+                      {/* <div className="fw-semibold">{detalleHabito.racha}</div> */}
                     </div>
                   </div>
 

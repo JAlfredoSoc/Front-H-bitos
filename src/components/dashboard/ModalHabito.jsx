@@ -44,6 +44,9 @@ function ModalHabito({
 
   useEffect(() => {
     if (habitoEnEdicion) {
+
+      let categoriaId = '';
+
       setFormulario({
         nombre: habitoEnEdicion.nombre || '',
         descripcion: habitoEnEdicion.descripcion || '',
@@ -54,7 +57,7 @@ function ModalHabito({
       });
     } else if (sugerenciaSeleccionada) {
       // Extraer el nombre de la categoría correctamente
-      let categoriaId = '';
+      
 
       if (sugerenciaSeleccionada.categoria) {
         if (typeof sugerenciaSeleccionada.categoria === 'object') {
@@ -172,6 +175,10 @@ function ModalHabito({
 
     const datosProcesados = procesarDatosHabito();
 
+    const formatearHoraInput = (fecha) => {
+      if (!fecha) return '';
+      return new Date(fecha).toISOString().substring(11, 16);
+    };
     let resultado;
     
     if (habitoEnEdicion) {

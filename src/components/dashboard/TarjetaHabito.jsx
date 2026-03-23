@@ -74,15 +74,7 @@ function TarjetaHabito({
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="tarjeta-info-mini h-100">
-              <small className="text-muted d-block mb-1">Racha</small>
-              <div className="fw-semibold d-flex align-items-center gap-2">
-                <FiTrendingUp />
-                <span>{habito.racha}</span>
-              </div>
-            </div>
-          </div>
+          
 
           <div className="col-6">
             <div className="tarjeta-info-mini h-100">

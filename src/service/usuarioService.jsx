@@ -75,13 +75,13 @@ export const registrarUsuario = async (nombre, correo, contrasena, edad, telefon
 export const obtenerHabitosUsuario = async (usuarioId) => {
     try {
         const res = await API.get(`/usuario/${usuarioId}/habitos`);
-
+        console.log("Hábitos del usuario:", res.data.data) // Para debug
         return {
             success: true,
-            data: res.data.data // 👈 porque envías { message, data }
+            data: res.data.data, 
         };
     } catch (error) {
-        onsole.error("Error al obtener hábitos del usuario:", error);
+        console.error("Error al obtener hábitos del usuario:", error);
 
         return {
             success: false,
