@@ -30,6 +30,16 @@ function TarjetaHabito({
 }) {
   const claseCategoria = obtenerClaseCategoria(habito.categoria);
 
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'No definida';
+
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <div className={`card tarjeta-habito tarjeta-habito-color ${claseCategoria} h-100`}>
       <div className="card-body p-4 d-flex flex-column">
@@ -69,7 +79,7 @@ function TarjetaHabito({
               <small className="text-muted d-block mb-1">Inicio</small>
               <div className="fw-semibold d-flex align-items-center gap-2">
                 <FiCalendar />
-                <span>{habito.fechaInicio || 'No definida'}</span>
+                <span>{formatearFecha(habito.fechaInicio)}</span>
               </div>
             </div>
           </div>
@@ -79,7 +89,7 @@ function TarjetaHabito({
               <small className="text-muted d-block mb-1">Fin</small>
               <div className="fw-semibold d-flex align-items-center gap-2">
                 <FiCalendar />
-                <span>{habito.fechaFin || 'No definida'}</span>
+                <span>{formatearFecha(habito.fechaFin) || 'No definida'}</span>
               </div>
             </div>
           </div>
