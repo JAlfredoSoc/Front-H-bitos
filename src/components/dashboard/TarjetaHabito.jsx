@@ -138,6 +138,7 @@ function TarjetaHabito({
           <button
             className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3"
             onClick={() => alCompletar(habito.id)}
+            disabled={habito.progreso >= 100}
           >
             <FiCheckCircle />
             <span>Completar</span>
