@@ -90,6 +90,7 @@ function PanelPrincipal() {
   const [seccionActiva, setSeccionActiva] = useState('habitos');
   const [mostrarModal, setMostrarModal] = useState(false);
   const [habitoEnEdicion, setHabitoEnEdicion] = useState(null);
+  const [sugerenciaSeleccionada, setSugerenciaSeleccionada] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
 
   const abrirCrearHabito = () => {
@@ -117,21 +118,16 @@ function PanelPrincipal() {
       return;
     }
 
-    // Agregar sugerencia como nuevo hábito
-    const nuevoHabito = {
-      ...sugerencia,
-      id: Date.now()
-    };
-
-    setHabitos((prev) => [nuevoHabito, ...prev]);
-
-    // Cambiar automáticamente a sección de hábitos
-    setSeccionActiva('habitos');
+    // Abrir modal con datos precargados de la sugerencia
+    setSugerenciaSeleccionada(sugerencia);
+    setHabitoEnEdicion(null);
+    setMostrarModal(true);
   };
 
   const cerrarModal = () => {
     setMostrarModal(false);
     setHabitoEnEdicion(null);
+    setSugerenciaSeleccionada(null);
   };
 
   const obtenerFechaActual = () => {
@@ -182,10 +178,16 @@ function PanelPrincipal() {
   const guardarHabito = (datosHabito) => {
     const datosProcesados = procesarHabito(datosHabito);
 
-    if (habitoEnEdicion) {
+    if (habitoEnEdicion && !sugerenciaSeleccionada) {
+      // Editar hábito existente
       actualizarHabito(datosProcesados);
     } else {
+      // Crear nuevo hábito (ya sea vacío o desde sugerencia)
       crearHabito(datosProcesados);
+      // Si se creó desde sugerencia, cambiar automáticamente a sección de hábitos
+      if (sugerenciaSeleccionada) {
+        setSeccionActiva('habitos');
+      }
     }
   };
 
@@ -354,6 +356,7 @@ function PanelPrincipal() {
         cerrar={cerrarModal}
         guardarHabito={guardarHabito}
         habitoEnEdicion={habitoEnEdicion}
+        sugerenciaSeleccionada={sugerenciaSeleccionada}
       />
 
       {detalleHabito && (

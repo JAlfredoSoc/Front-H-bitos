@@ -12,8 +12,9 @@ const estadoInicial = {
 function ModalHabito({
   mostrar,
   cerrar,
- guardarHabito,
-  habitoEnEdicion = null
+  guardarHabito,
+  habitoEnEdicion = null,
+  sugerenciaSeleccionada = null
 }) {
   const [formulario, setFormulario] = useState(estadoInicial);
   const [errores, setErrores] = useState({});
@@ -29,13 +30,22 @@ function ModalHabito({
         fechaInicio: habitoEnEdicion.fechaInicio || '',
         fechaFin: habitoEnEdicion.fechaFin || ''
       });
+    } else if (sugerenciaSeleccionada) {
+      setFormulario({
+        nombre: sugerenciaSeleccionada.nombre || '',
+        descripcion: sugerenciaSeleccionada.descripcion || '',
+        categoria: sugerenciaSeleccionada.categoria || 'Salud',
+        horario: sugerenciaSeleccionada.horario || '',
+        fechaInicio: sugerenciaSeleccionada.fechaInicio || '',
+        fechaFin: sugerenciaSeleccionada.fechaFin || ''
+      });
     } else {
       setFormulario(estadoInicial);
     }
 
     setErrores({});
     setProcesando(false);
-  }, [habitoEnEdicion, mostrar]);
+  }, [habitoEnEdicion, sugerenciaSeleccionada, mostrar]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -132,6 +142,8 @@ function ModalHabito({
               <p className="text-muted mb-0">
                 {habitoEnEdicion
                   ? 'Actualiza la información de tu hábito.'
+                  : sugerenciaSeleccionada
+                  ? 'Basado en una sugerencia. Personaliza según tus necesidades.'
                   : 'Valida y registra un nuevo hábito en tu panel.'}
               </p>
             </div>
