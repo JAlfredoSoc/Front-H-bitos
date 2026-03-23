@@ -1,5 +1,7 @@
+// src/components/common/ModalInicioSesion.jsx
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { iniciarSesion } from '../../service/usuarioService'; // Ajusta la ruta según tu estructura
 
 function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
   const navigate = useNavigate();
@@ -8,6 +10,8 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
     correo: '',
     contrasena: ''
   });
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState('');
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -15,13 +19,38 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
       ...datosFormulario,
       [name]: value
     });
+    // Limpiar error cuando el usuario empieza a escribir
+    if (error) setError('');
   };
 
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
-    console.log('Datos de inicio de sesión:', datosFormulario);
-    cerrarModal();
-    navigate('/panel-principal');
+    setCargando(true);
+    setError('');
+
+    // Llamar al servicio de inicio de sesión
+    const resultado = await iniciarSesion(
+      datosFormulario.correo,
+      datosFormulario.contrasena
+    );
+
+    if (resultado.success) {
+      // Guardar usuario en localStorage para mantener la sesión
+      localStorage.setItem('usuario', JSON.stringify(resultado.data.usuario));
+      
+      console.log('Login exitoso:', resultado.data);
+      
+      // Cerrar modal
+      cerrarModal();
+      
+      // Redirigir al panel principal
+      navigate('/panel-principal');
+    } else {
+      // Mostrar mensaje de error
+      setError(resultado.message);
+    }
+
+    setCargando(false);
   };
 
   const irARegistro = () => {
@@ -55,6 +84,20 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
           <p className="text-muted mb-0">Ingresa a tu cuenta para continuar</p>
         </div>
 
+        {/* Mostrar mensaje de error si existe */}
+        {error && (
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {error}
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setError('')}
+              aria-label="Close"
+            ></button>
+          </div>
+        )}
+
         <form onSubmit={manejarEnvio}>
           <div className="mb-3">
             <label htmlFor="correo" className="form-label">
@@ -69,6 +112,7 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
               value={datosFormulario.correo}
               onChange={manejarCambio}
               required
+              disabled={cargando}
             />
           </div>
 
@@ -84,12 +128,24 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
               value={datosFormulario.contrasena}
               onChange={manejarCambio}
               required
+              disabled={cargando}
             />
           </div>
 
           <div className="d-grid mb-3">
-            <button type="submit" className="btn btn-primary">
-              Iniciar sesión
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={cargando}
+            >
+              {cargando ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Iniciando sesión...
+                </>
+              ) : (
+                'Iniciar sesión'
+              )}
             </button>
           </div>
 
@@ -99,6 +155,7 @@ function ModalInicioSesion({ mostrar, cerrarModal, abrirModalRegistro }) {
               type="button"
               className="btn btn-link p-0 text-decoration-none"
               onClick={irARegistro}
+              disabled={cargando}
             >
               Regístrate
             </button>
