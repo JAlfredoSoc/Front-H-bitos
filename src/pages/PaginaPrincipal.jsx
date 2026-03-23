@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-'; // 1. Importamos el navegador
+import { useNavigate } from 'react-router'; // 1. Importamos el navegador
 import BarraNavegacion from '../components/common/BarraNavegacion';
 import ModalInicioSesion from '../components/common/ModalInicioSesion';
 import ModalRegistroUsuario from '../components/common/ModalRegistroUsuario';

@@ -9,7 +9,7 @@ import BarraSuperiorPanel from '../components/dashboard/BarraSuperiorPanel';
 import TarjetaHabito from '../components/dashboard/TarjetaHabito';
 import ModalHabito from '../components/dashboard/ModalHabito';
 import SeccionSugerencias from '../components/dashboard/SeccionSugerencias';
-import sugerenciasHabitos from '../models/sugerenciasHabitos';
+import sugerenciasHabitos from '../../src/components/dashboard/SeccionSugerencias';
 
 function PanelPrincipal() {
   const [habitos, setHabitos] = useState([
