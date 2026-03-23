@@ -1,14 +1,16 @@
 import {
   FiHome,
   FiBarChart2,
-  FiClock
+  FiClock,
+  FiHeart
 } from 'react-icons/fi';
 
-function BarraLateralPanel() {
+function BarraLateralPanel({ seccionActiva, cambiarSeccion }) {
   const menu = [
-    { nombre: 'Mis hábitos', icono: <FiHome /> },
-    { nombre: 'Estadísticas', icono: <FiBarChart2 /> },
-    { nombre: 'Historial', icono: <FiClock /> }
+    { nombre: 'Mis hábitos', clave: 'habitos', icono: <FiHome /> },
+    { nombre: 'Estadísticas', clave: 'estadisticas', icono: <FiBarChart2 /> },
+    { nombre: 'Historial', clave: 'historial', icono: <FiClock /> },
+    { nombre: 'Sugerencias', clave: 'sugerencias', icono: <FiHeart /> }
   ];
 
   return (
@@ -24,10 +26,11 @@ function BarraLateralPanel() {
       <div className="menu-seccion-titulo">Navegación</div>
 
       <div className="menu-lateral">
-        {menu.map((item, index) => (
+        {menu.map((item) => (
           <button
             key={item.nombre}
-            className={`menu-lateral-btn ${index === 0 ? 'activo' : ''}`}
+            className={`menu-lateral-btn ${seccionActiva === item.clave ? 'activo' : ''}`}
+            onClick={() => cambiarSeccion(item.clave)}
           >
             <span className="menu-icono">{item.icono}</span>
             <span>{item.nombre}</span>
