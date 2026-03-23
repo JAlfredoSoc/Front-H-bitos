@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';  // ← Agregar useEffect
 import { FiBell, FiSearch, FiLogOut } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import ModalPerfil from './ModalPerfil';
@@ -6,8 +6,44 @@ import ModalPerfil from './ModalPerfil';
 function BarraSuperiorPanel() {
   const navigate = useNavigate();
   const [mostrarModalPerfil, setMostrarModalPerfil] = useState(false);
+  const [usuario, setUsuario] = useState(null);  // ← Estado para el usuario
+
+  // Función para cargar usuario desde localStorage
+  const cargarUsuario = () => {
+    const usuarioGuardado = localStorage.getItem('usuario');
+    if (usuarioGuardado) {
+      setUsuario(JSON.parse(usuarioGuardado));
+    }
+  };
+
+  // Cargar usuario al montar el componente
+  useEffect(() => {
+    cargarUsuario();
+    
+    // Escuchar cambios en localStorage (cuando se actualiza el perfil)
+    const handleStorageChange = (e) => {
+      if (e.key === 'usuario') {
+        cargarUsuario();
+      }
+    };
+    
+    // También escuchar evento personalizado desde ModalPerfil
+    const handleUsuarioActualizado = () => {
+      cargarUsuario();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('usuarioActualizado', handleUsuarioActualizado);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('usuarioActualizado', handleUsuarioActualizado);
+    };
+  }, []);
 
   const handleCerrarSesion = () => {
+    localStorage.removeItem('usuario');
+    setUsuario(null);
     navigate('/');
   };
 
@@ -17,6 +53,8 @@ function BarraSuperiorPanel() {
 
   const cerrarModalPerfil = () => {
     setMostrarModalPerfil(false);
+    // Recargar usuario por si hubo cambios en el perfil
+    cargarUsuario();
   };
 
   return (
@@ -40,21 +78,25 @@ function BarraSuperiorPanel() {
             <FiBell />
           </button>
 
+          {/* ✅ Mostrar nombre real del usuario */}
           <div
             className="text-end"
             style={{ cursor: 'pointer' }}
             onClick={abrirModalPerfil}
           >
-            <p className="mb-0 fw-semibold">Usuario</p>
+            <p className="mb-0 fw-semibold">
+              {usuario ? usuario.nombre : 'Usuario'}
+            </p>
             <small className="text-muted">Nivel constante</small>
           </div>
 
+          {/* ✅ Mostrar inicial del nombre en el avatar */}
           <div
             className="avatar-panel"
             style={{ cursor: 'pointer' }}
             onClick={abrirModalPerfil}
           >
-            U
+            {usuario ? usuario.nombre?.charAt(0)?.toUpperCase() : 'U'}
           </div>
 
           <button
