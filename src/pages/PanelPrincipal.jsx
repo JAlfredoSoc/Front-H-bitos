@@ -8,6 +8,8 @@ import BarraLateralPanel from '../components/dashboard/BarraLateralPanel';
 import BarraSuperiorPanel from '../components/dashboard/BarraSuperiorPanel';
 import TarjetaHabito from '../components/dashboard/TarjetaHabito';
 import ModalHabito from '../components/dashboard/ModalHabito';
+import SeccionSugerencias from '../components/dashboard/SeccionSugerencias';
+import sugerenciasHabitos from '../models/sugerenciasHabitos';
 
 function PanelPrincipal() {
   const [habitos, setHabitos] = useState([
@@ -85,6 +87,7 @@ function PanelPrincipal() {
     }
   ]);
 
+  const [seccionActiva, setSeccionActiva] = useState('habitos');
   const [mostrarModal, setMostrarModal] = useState(false);
   const [habitoEnEdicion, setHabitoEnEdicion] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
@@ -97,6 +100,33 @@ function PanelPrincipal() {
   const abrirEditarHabito = (habito) => {
     setHabitoEnEdicion(habito);
     setMostrarModal(true);
+  };
+
+  const cambiarSeccion = (nuevaSeccion) => {
+    setSeccionActiva(nuevaSeccion);
+  };
+
+  const seleccionarSugerencia = (sugerencia) => {
+    // Validar que no exista ya en hábitos
+    const yaExiste = habitos.some(
+      (habito) => habito.nombre.toLowerCase() === sugerencia.nombre.toLowerCase()
+    );
+
+    if (yaExiste) {
+      alert('Este hábito ya está en tu lista');
+      return;
+    }
+
+    // Agregar sugerencia como nuevo hábito
+    const nuevoHabito = {
+      ...sugerencia,
+      id: Date.now()
+    };
+
+    setHabitos((prev) => [nuevoHabito, ...prev]);
+
+    // Cambiar automáticamente a sección de hábitos
+    setSeccionActiva('habitos');
   };
 
   const cerrarModal = () => {
@@ -210,79 +240,113 @@ function PanelPrincipal() {
 
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: '100vh' }}>
-      <BarraLateralPanel />
+      <BarraLateralPanel seccionActiva={seccionActiva} cambiarSeccion={cambiarSeccion} />
 
       <div className="flex-grow-1 d-flex flex-column">
         <BarraSuperiorPanel />
 
-        <main className="p-4 p-lg-5">
-          <section className="tarjeta-bienvenida p-4 p-lg-5 mb-4">
-            <div className="row align-items-center g-4">
-              <div className="col-lg-8">
-                <p className="mb-2 opacity-75">Organiza tu día con intención</p>
-                <h2 className="fw-bold mb-3">Construye una mejor versión de ti con cada hábito</h2>
-                <p className="mb-0 opacity-75">
-                  Lleva el control de tus actividades, fortalece tu constancia y transforma
-                  pequeñas acciones en grandes resultados.
-                </p>
-              </div>
+        {seccionActiva === 'habitos' && (
+          <>
+            <main className="p-4 p-lg-5">
+              <section className="tarjeta-bienvenida p-4 p-lg-5 mb-4">
+                <div className="row align-items-center g-4">
+                  <div className="col-lg-8">
+                    <p className="mb-2 opacity-75">Organiza tu día con intención</p>
+                    <h2 className="fw-bold mb-3">Construye una mejor versión de ti con cada hábito</h2>
+                    <p className="mb-0 opacity-75">
+                      Lleva el control de tus actividades, fortalece tu constancia y transforma
+                      pequeñas acciones en grandes resultados.
+                    </p>
+                  </div>
 
-              <div className="col-lg-4 text-lg-end">
-                <button
-                  className="btn btn-light px-4 py-3 fw-semibold rounded-4 d-inline-flex align-items-center gap-2"
-                  onClick={abrirCrearHabito}
-                >
-                  <FiPlus />
-                  <span>Nuevo hábito</span>
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-4">
-            <div className="row g-4">
-              {resumen.map((item) => (
-                <div className="col-12 col-md-6" key={item.titulo}>
-                  <div className="card tarjeta-resumen h-100">
-                    <div className="card-body p-4 d-flex align-items-center gap-3">
-                      <div className="icono-resumen">{item.icono}</div>
-                      <div>
-                        <p className="text-muted mb-1">{item.titulo}</p>
-                        <h3 className="fw-bold mb-1 text-morado">{item.valor}</h3>
-                        <p className="mb-0 text-secondary">{item.descripcion}</p>
-                      </div>
-                    </div>
+                  <div className="col-lg-4 text-lg-end">
+                    <button
+                      className="btn btn-light px-4 py-3 fw-semibold rounded-4 d-inline-flex align-items-center gap-2"
+                      onClick={abrirCrearHabito}
+                    >
+                      <FiPlus />
+                      <span>Nuevo hábito</span>
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
 
-          <section>
-            <div className="seccion-titulo">
-              <div>
-                <h2 className="fw-bold mb-1">Tus hábitos activos</h2>
-                <p className="text-muted mb-0">
-                  Organiza, consulta y da seguimiento a tus hábitos diarios.
-                </p>
-              </div>
-            </div>
-
-            <div className="row g-4">
-              {habitos.map((habito) => (
-                <div className="col-12 col-md-6 col-xl-4" key={habito.id}>
-                  <TarjetaHabito
-                    habito={habito}
-                    alCompletar={completarHabito}
-                    alEditar={abrirEditarHabito}
-                    alEliminar={eliminarHabito}
-                    alVerDetalle={verDetalleHabito}
-                  />
+              <section className="mb-4">
+                <div className="row g-4">
+                  {resumen.map((item) => (
+                    <div className="col-12 col-md-6" key={item.titulo}>
+                      <div className="card tarjeta-resumen h-100">
+                        <div className="card-body p-4 d-flex align-items-center gap-3">
+                          <div className="icono-resumen">{item.icono}</div>
+                          <div>
+                            <p className="text-muted mb-1">{item.titulo}</p>
+                            <h3 className="fw-bold mb-1 text-morado">{item.valor}</h3>
+                            <p className="mb-0 text-secondary">{item.descripcion}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        </main>
+              </section>
+
+              <section>
+                <div className="seccion-titulo">
+                  <div>
+                    <h2 className="fw-bold mb-1">Tus hábitos activos</h2>
+                    <p className="text-muted mb-0">
+                      Organiza, consulta y da seguimiento a tus hábitos diarios.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="row g-4">
+                  {habitos.map((habito) => (
+                    <div className="col-12 col-md-6 col-xl-4" key={habito.id}>
+                      <TarjetaHabito
+                        habito={habito}
+                        alCompletar={completarHabito}
+                        alEditar={abrirEditarHabito}
+                        alEliminar={eliminarHabito}
+                        alVerDetalle={verDetalleHabito}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </main>
+          </>
+        )}
+
+        {seccionActiva === 'sugerencias' && (
+          <SeccionSugerencias
+            sugerencias={sugerenciasHabitos}
+            habitosActuales={habitos}
+            alSeleccionar={seleccionarSugerencia}
+          />
+        )}
+
+        {seccionActiva === 'estadisticas' && (
+          <main className="p-4 p-lg-5">
+            <section className="text-center py-5">
+              <h2 className="fw-bold mb-3">Estadísticas</h2>
+              <p className="text-muted">
+                Esta sección de estadísticas será implementada próximamente.
+              </p>
+            </section>
+          </main>
+        )}
+
+        {seccionActiva === 'historial' && (
+          <main className="p-4 p-lg-5">
+            <section className="text-center py-5">
+              <h2 className="fw-bold mb-3">Historial</h2>
+              <p className="text-muted">
+                Esta sección de historial será implementada próximamente.
+              </p>
+            </section>
+          </main>
+        )}
       </div>
 
       <ModalHabito

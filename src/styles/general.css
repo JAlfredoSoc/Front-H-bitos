@@ -392,3 +392,24 @@ body {
   background-color: rgba(108, 117, 125, 0.12);
   color: #6c757d;
 }
+
+.tarjeta-sugerencias {
+  background: linear-gradient(135deg, var(--morado-secundario), #7c3aed), 
+              linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: white;
+  border-radius: 28px;
+  box-shadow: 0 20px 45px rgba(109, 40, 217, 0.25);
+  overflow: hidden;
+  position: relative;
+}
+
+.tarjeta-sugerencias::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -30px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
