@@ -95,7 +95,28 @@ function TarjetaHabito({
               </div>
             </div>
           </div>
+
+
+
+          <div className="col-6">
+            <div className="tarjeta-info-mini h-100">
+              <small className="text-muted d-block mb-1">Periodo</small>
+              <div className="fw-semibold d-flex align-items-center gap-2">
+                <span>{habito.periodo || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-6">
+            <div className="tarjeta-info-mini h-100">
+              <small className="text-muted d-block mb-1">Frecuencia: <span>{habito.frecuencia || 'N/A'}</span></small>
+            </div>
+          </div>
+
+
         </div>
+
+        
 
         <div className="d-flex justify-content-between mb-2">
           <small className="text-muted">Progreso</small>
@@ -138,13 +159,7 @@ function TarjetaHabito({
             <span>Eliminar</span>
           </button>
 
-          <button
-            className="btn btn-suave btn-sm d-flex align-items-center gap-2"
-            onClick={() => alVerDetalle(habito)}
-          >
-            <FiEye />
-            <span>Detalle</span>
-          </button>
+          
         </div>
       </div>
     </div>

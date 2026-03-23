@@ -71,7 +71,11 @@ function PanelPrincipal() {
       categoria: datosHabito.categoria,
       horario: datosHabito.horario,
       fechaInicio: datosHabito.fechaInicio,
-      fechaFin: datosHabito.fechaFin
+      fechaFin: datosHabito.fechaFin,
+      progreso: {
+        periodo: datosHabito.progreso?.periodo,
+        frecuencia: datosHabito.progreso?.frecuencia
+      }
     };
   };
 
@@ -85,7 +89,8 @@ function PanelPrincipal() {
       fechaInicio: datosProcesados.fechaInicio,
       fechaFin: datosProcesados.fechaFin,
       fechaCreacion: obtenerFechaActual(),
-      progreso: 0
+      progreso: datosProcesados.progreso,
+      frecuencia: datosProcesados.frecuencia
     };
 
     setHabitos((prev) => [nuevoHabito, ...prev]);
