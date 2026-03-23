@@ -44,6 +44,9 @@ function ModalHabito({
 
   useEffect(() => {
     if (habitoEnEdicion) {
+
+      let categoriaId = '';
+
       setFormulario({
         nombre: habitoEnEdicion.nombre || '',
         descripcion: habitoEnEdicion.descripcion || '',
@@ -54,7 +57,7 @@ function ModalHabito({
       });
     } else if (sugerenciaSeleccionada) {
       // Extraer el nombre de la categoría correctamente
-      let categoriaId = '';
+      
 
       if (sugerenciaSeleccionada.categoria) {
         if (typeof sugerenciaSeleccionada.categoria === 'object') {
@@ -144,12 +147,14 @@ function ModalHabito({
   const procesarDatosHabito = () => {
 
     const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const fechaBase = formulario.fechaInicio || new Date().toISOString().split('T')[0];
+    const horarioCompleto = new Date(`${fechaBase}T${formulario.horario}`);
 
     return {
       nombre: formulario.nombre.trim(),
       descripcion: formulario.descripcion.trim(),
       categoria: formulario.categoria,
-      horario: formulario.horario,
+      horario: horarioCompleto,
       fechaInicio: formulario.fechaInicio,
       fechaFin: formulario.fechaFin || null,
       usuarioId: usuario?._id, // 🔥 AQUÍ ESTÁ LA CLAVE
@@ -170,6 +175,10 @@ function ModalHabito({
 
     const datosProcesados = procesarDatosHabito();
 
+    const formatearHoraInput = (fecha) => {
+      if (!fecha) return '';
+      return new Date(fecha).toISOString().substring(11, 16);
+    };
     let resultado;
     
     if (habitoEnEdicion) {
@@ -334,7 +343,7 @@ function ModalHabito({
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">Horario *</label>
                   <input
-                    type="date"
+                    type="time"
                     className={`form-control form-control-lg rounded-4}`}
                     name="horario"
                     value={formulario.horario}

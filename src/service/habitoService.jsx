@@ -57,3 +57,22 @@ export const crearHabito = async (habitoData) => {
         }
     }
 };
+
+
+export const actualizarProgreso = async (habitoId) => {
+    try {
+        const res = await API.put(`/ActualizarProgreso/${habitoId}`);
+        return {
+            success: true,
+            data: res.data,
+            message: "Progreso actualizado exitosamente"
+        }
+    } catch (error) {
+        console.error("Error al obtener hábitos del usuario:", error);
+
+        return {
+            success: false,
+            message: error.response?.data?.message || "Error al obtener hábitos"
+        };
+    }
+}

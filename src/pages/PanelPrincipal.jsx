@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   FiActivity,
   FiCheckSquare,
@@ -11,80 +11,10 @@ import ModalHabito from '../components/dashboard/ModalHabito';
 import SeccionSugerencias from '../components/dashboard/SeccionSugerencias';
 import sugerenciasHabitos from '../../src/components/dashboard/SeccionSugerencias';
 
+import { obtenerHabitosUsuario } from '../../src/service/usuarioService';
+
 function PanelPrincipal() {
   const [habitos, setHabitos] = useState([
-    {
-      id: 1,
-      nombre: 'Meditar',
-      descripcion: 'Meditación diaria para reducir el estrés y comenzar el día con calma.',
-      categoria: 'Salud',
-      horario: '05:30',
-      fechaInicio: '2024-11-24',
-      fechaFin: '',
-      racha: '7 días',
-      fechaCreacion: '24/11/2024',
-      progreso: 60
-    },
-    {
-      id: 2,
-      nombre: 'Planificar el día',
-      descripcion: 'Organizar las tareas diarias para mantener enfoque y productividad.',
-      categoria: 'Estudio',
-      horario: '07:30',
-      fechaInicio: '2024-11-24',
-      fechaFin: '',
-      racha: '4 días',
-      fechaCreacion: '24/11/2024',
-      progreso: 45
-    },
-    {
-      id: 3,
-      nombre: 'Tomar agua',
-      descripcion: 'Beber 2 litros de agua al día para mantener una buena hidratación.',
-      categoria: 'Salud',
-      horario: '07:00',
-      fechaInicio: '2024-11-24',
-      fechaFin: '',
-      racha: '7 días',
-      fechaCreacion: '24/11/2024',
-      progreso: 80
-    },
-    {
-      id: 4,
-      nombre: 'Estudiar programación',
-      descripcion: 'Dedicar 2 horas al día al estudio de nuevas tecnologías y lenguajes.',
-      categoria: 'Estudio',
-      horario: '18:00',
-      fechaInicio: '2024-11-24',
-      fechaFin: '',
-      racha: '3 días',
-      fechaCreacion: '24/11/2024',
-      progreso: 55
-    },
-    {
-      id: 5,
-      nombre: 'Dormir 8 horas',
-      descripcion: 'Acostarse temprano para mantener un buen descanso y mejorar el rendimiento.',
-      categoria: 'Bienestar',
-      horario: '22:00',
-      fechaInicio: '2024-12-01',
-      fechaFin: '',
-      racha: '6 días',
-      fechaCreacion: '01/12/2024',
-      progreso: 70
-    },
-    {
-      id: 6,
-      nombre: 'Tomar pausas mentales',
-      descripcion: 'Practicar pausas cortas de 5 minutos durante el trabajo o estudio.',
-      categoria: 'Productividad',
-      horario: '10:30',
-      fechaInicio: '2024-12-01',
-      fechaFin: '',
-      racha: '5 días',
-      fechaCreacion: '01/12/2024',
-      progreso: 50
-    }
   ]);
 
   const [seccionActiva, setSeccionActiva] = useState('habitos');
@@ -141,7 +71,11 @@ function PanelPrincipal() {
       categoria: datosHabito.categoria,
       horario: datosHabito.horario,
       fechaInicio: datosHabito.fechaInicio,
-      fechaFin: datosHabito.fechaFin
+      fechaFin: datosHabito.fechaFin,
+      progreso: {
+        periodo: datosHabito.progreso?.periodo,
+        frecuencia: datosHabito.progreso?.frecuencia
+      }
     };
   };
 
@@ -154,9 +88,9 @@ function PanelPrincipal() {
       horario: datosProcesados.horario,
       fechaInicio: datosProcesados.fechaInicio,
       fechaFin: datosProcesados.fechaFin,
-      racha: '0 días',
       fechaCreacion: obtenerFechaActual(),
-      progreso: 0
+      progreso: datosProcesados.progreso,
+      frecuencia: datosProcesados.frecuencia
     };
 
     setHabitos((prev) => [nuevoHabito, ...prev]);
@@ -197,12 +131,12 @@ function PanelPrincipal() {
         if (habito.id !== id) return habito;
 
         const nuevoProgreso = habito.progreso >= 100 ? 100 : habito.progreso + 10;
-        const numeroRacha = parseInt(habito.racha, 10) || 0;
+        // const numeroRacha = parseInt(habito.racha, 10) || 0;
 
         return {
           ...habito,
           progreso: nuevoProgreso,
-          racha: `${numeroRacha + 1} días`
+          // racha: `${numeroRacha + 1} días`
         };
       })
     );
@@ -239,6 +173,63 @@ function PanelPrincipal() {
       }
     ];
   }, [habitos]);
+
+
+  useEffect(() => {
+    const cargarHabitos = async () => {
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+      if (!usuario?._id) {
+        console.warn("No hay usuario logueado");
+        return;
+      }
+
+      const res = await obtenerHabitosUsuario(usuario._id);
+
+      if (res.success) {
+        // 🔥 Transformar datos del backend al formato que usa tu UI
+        const habitosFormateados = res.data.map((h) => ({
+          id: h._id,
+          nombre: h.nombre,
+          descripcion: h.descripcion,
+          categoria: h.categoria?.nombreCategoria || 'Sin categoría',
+          horario: h.horario,
+          fechaInicio: h.fechaInicio,
+          fechaFin: h.fechaFin,
+          // racha: `${h.progreso?.progreso || 0} días`,
+          progreso: h.progreso?.progreso || 0,
+          frecuencia: h.progreso?.frecuencia,
+          periodo: h.progreso?.periodo
+        }));
+
+        setHabitos(habitosFormateados);
+      } else {
+        console.error(res.message);
+      }
+    };
+
+    cargarHabitos();
+  }, []);
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'No definida';
+
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatearHora = (fecha) => {
+    if (!fecha) return '';
+
+    return new Date(fecha).toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
 
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: '100vh' }}>
@@ -354,9 +345,31 @@ function PanelPrincipal() {
       <ModalHabito
         mostrar={mostrarModal}
         cerrar={cerrarModal}
-        guardarHabito={guardarHabito}
         habitoEnEdicion={habitoEnEdicion}
         sugerenciaSeleccionada={sugerenciaSeleccionada}
+        onHabitoCreado={() => {
+          // 🔥 recargar desde backend
+          const usuario = JSON.parse(localStorage.getItem('usuario'));
+          if (usuario?._id) {
+            obtenerHabitosUsuario(usuario._id).then((res) => {
+              if (res.success) {
+                const habitosFormateados = res.data.map((h) => ({
+                  id: h._id,
+                  nombre: h.nombre,
+                  descripcion: h.descripcion,
+                  categoria: h.categoria?.nombreCategoria || 'Sin categoría',
+                  horario: h.horario,
+                  fechaInicio: h.fechaInicio,
+                  fechaFin: h.fechaFin,
+                  // racha: `${h.progreso?.progreso || 0} días`,
+                  progreso: h.progreso?.progreso || 0
+                }));
+
+                setHabitos(habitosFormateados);
+              }
+            });
+          }
+        }}
       />
 
       {detalleHabito && (
@@ -395,28 +408,28 @@ function PanelPrincipal() {
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
                       <small className="text-muted d-block mb-1">Horario</small>
-                      <div className="fw-semibold">{detalleHabito.horario || 'No definido'}</div>
+                      <div className="fw-semibold">{formatearHora(detalleHabito.horario) || 'No definido'}</div>
                     </div>
                   </div>
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
-                      <small className="text-muted d-block mb-1">Racha</small>
-                      <div className="fw-semibold">{detalleHabito.racha}</div>
+                      {/* <small className="text-muted d-block mb-1">Racha</small> */}
+                      {/* <div className="fw-semibold">{detalleHabito.racha}</div> */}
                     </div>
                   </div>
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
                       <small className="text-muted d-block mb-1">Fecha inicio</small>
-                      <div className="fw-semibold">{detalleHabito.fechaInicio || 'No definida'}</div>
+                      <div className="fw-semibold">{formatearFecha(detalleHabito.fechaInicio)}</div>
                     </div>
                   </div>
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
                       <small className="text-muted d-block mb-1">Fecha fin</small>
-                      <div className="fw-semibold">{detalleHabito.fechaFin || 'No definida'}</div>
+                      <div className="fw-semibold">{formatearFecha(detalleHabito.fechaFin)}</div>
                     </div>
                   </div>
 
