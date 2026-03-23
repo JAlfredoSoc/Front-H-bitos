@@ -12,6 +12,7 @@ import SeccionSugerencias from '../components/dashboard/SeccionSugerencias';
 import sugerenciasHabitos from '../../src/components/dashboard/SeccionSugerencias';
 
 import { obtenerHabitosUsuario } from '../../src/service/usuarioService';
+import { actualizarProgreso } from '../../src/service/habitoService';
 
 function PanelPrincipal() {
   const [habitos, setHabitos] = useState([
@@ -125,21 +126,35 @@ function PanelPrincipal() {
     }
   };
 
-  const completarHabito = (id) => {
-    setHabitos((prev) =>
-      prev.map((habito) => {
-        if (habito.id !== id) return habito;
+  const completarHabito = async (id) => {
+    const res = await actualizarProgreso(id);
 
-        const nuevoProgreso = habito.progreso >= 100 ? 100 : habito.progreso + 10;
-        // const numeroRacha = parseInt(habito.racha, 10) || 0;
+    if (res.success) {
+      // 🔥 Opción PRO: recargar desde backend
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
 
-        return {
-          ...habito,
-          progreso: nuevoProgreso,
-          // racha: `${numeroRacha + 1} días`
-        };
-      })
-    );
+      const habitosActualizados = await obtenerHabitosUsuario(usuario._id);
+
+      if (habitosActualizados.success) {
+        const habitosFormateados = habitosActualizados.data.map((h) => ({
+          id: h._id,
+          nombre: h.nombre,
+          descripcion: h.descripcion,
+          categoria: h.categoria?.nombreCategoria || 'Sin categoría',
+          horario: h.horario,
+          fechaInicio: h.fechaInicio,
+          fechaFin: h.fechaFin,
+          progreso: h.progreso?.progreso || 0,
+          frecuencia: h.progreso?.frecuencia,
+          periodo: h.progreso?.periodo
+        }));
+
+        setHabitos(habitosFormateados);
+      }
+
+    } else {
+      console.error(res.message);
+    }
   };
 
   const eliminarHabito = (id) => {
