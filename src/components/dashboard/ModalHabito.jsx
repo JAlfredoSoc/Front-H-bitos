@@ -60,6 +60,7 @@ function ModalHabito({
       
 
       if (sugerenciaSeleccionada.categoria) {
+        let categoriaId = '';
         if (typeof sugerenciaSeleccionada.categoria === 'object') {
           categoriaId = sugerenciaSeleccionada.categoria._id;
         }
