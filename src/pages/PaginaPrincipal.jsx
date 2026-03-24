@@ -70,7 +70,7 @@ function PaginaPrincipal() {
               className="btn btn-primary px-4 py-2 mt-4"
               onClick={entrarDirecto} 
             >
-              Comienza ahora (Bypass)
+              Comienza ahora 
             </button>
           </div>
         </div>
