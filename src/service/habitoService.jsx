@@ -76,9 +76,9 @@ export const actualizarProgreso = async (habitoId) => {
   }
 };
 
-export const obtenerHabitosUsuario = async (usuarioId) => {
+export const obtenerHabitosUsuario = async (usuarioID) => {
   try {
-    const res = await API.get(`/ObtenerHabitos/${usuarioId}`);
+    const res = await API.get(`/ObtenerHabitos/${usuarioID}`);
 
     console.log("=== EN USUARIO SERVICE ===");
     console.log("res.data:", res.data);
@@ -98,5 +98,48 @@ export const obtenerHabitosUsuario = async (usuarioId) => {
       success: false,
       message: error.response?.data?.message || "Error al obtener hábitos",
     };
+  }
+};
+
+// PARA APLICAR EL PROTOTYPE
+export const clonarHabito = async (habitoId, usuarioID) => {
+  try {
+    console.log("Clonando hábito con ID:", habitoId); // Debug
+    
+    // Usar API.post correctamente (API es tu instancia de axios)
+    const response = await API.post(`/clonar/${habitoId}`,{
+        usuarioID
+    });
+    
+    console.log("Respuesta del servidor:", response.data); // Debug
+    
+    return {
+      success: true,
+      data: response.data,
+      message: "Hábito clonado exitosamente"
+    };
+  } catch (error) {
+    console.error("Error en clonarHabito:", error);
+    
+    if (error.response) {
+      // El servidor respondió con un error
+      return {
+        success: false,
+        message: error.response.data.message || "Error al clonar el hábito",
+        status: error.response.status,
+      };
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      return {
+        success: false,
+        message: "No se pudo conectar con el servidor. Verifica tu conexión.",
+      };
+    } else {
+      // Algo pasó al configurar la petición
+      return {
+        success: false,
+        message: error.message || "Error al realizar la petición",
+      };
+    }
   }
 };
