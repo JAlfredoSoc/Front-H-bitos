@@ -1,28 +1,42 @@
-import { useMemo, useState, useEffect } from 'react';
-import {
-  FiActivity,
-  FiCheckSquare,
-  FiPlus
-} from 'react-icons/fi';
-import BarraLateralPanel from '../components/dashboard/BarraLateralPanel';
-import BarraSuperiorPanel from '../components/dashboard/BarraSuperiorPanel';
-import TarjetaHabito from '../components/dashboard/TarjetaHabito';
-import ModalHabito from '../components/dashboard/ModalHabito';
-import SeccionSugerencias from '../components/dashboard/SeccionSugerencias';
-import sugerenciasHabitos from '../../src/components/dashboard/SeccionSugerencias';
+// PanelPrincipal.jsx
+import { useMemo, useState, useEffect } from "react";
+import { FiActivity, FiCheckSquare, FiPlus } from "react-icons/fi";
+import BarraLateralPanel from "../components/dashboard/BarraLateralPanel";
+import BarraSuperiorPanel from "../components/dashboard/BarraSuperiorPanel";
+import TarjetaHabito from "../components/dashboard/TarjetaHabito";
+import ModalHabito from "../components/dashboard/ModalHabito";
+import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
+import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
 
-import { obtenerHabitosUsuario } from '../../src/service/usuarioService';
-import { actualizarProgreso } from '../../src/service/habitoService';
+import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
+import { actualizarProgreso } from "../../src/service/habitoService";
 
 function PanelPrincipal() {
-  const [habitos, setHabitos] = useState([
-  ]);
-
-  const [seccionActiva, setSeccionActiva] = useState('habitos');
+  const [habitos, setHabitos] = useState([]);
+  const [seccionActiva, setSeccionActiva] = useState("habitos");
   const [mostrarModal, setMostrarModal] = useState(false);
   const [habitoEnEdicion, setHabitoEnEdicion] = useState(null);
   const [sugerenciaSeleccionada, setSugerenciaSeleccionada] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
+
+  // 🔥 Función para formatear hábitos (reutilizable)
+  const formatearHabitos = (habitosData) => {
+    return habitosData.map((h) => ({
+      _id: h._id,
+      id: h._id,
+      nombre: h.nombre,
+      descripcion: h.descripcion,
+      categoria: h.categoria?.nombreCategoria || "Sin categoría",
+      horario: h.horario,
+      fechaInicio: h.fechaInicio,
+      fechaFin: h.fechaFin,
+      fechaCreacion: h.createdAt || new Date().toLocaleDateString("es-CO"),
+      progreso: h.progreso?.progreso || 0,
+      frecuencia: h.progreso?.frecuencia,
+      periodo: h.progreso?.periodo,
+      notificaciones: h.notificaciones || [], // 👈 AGREGADO: array de notificaciones
+    }));
+  };
 
   const abrirCrearHabito = () => {
     setHabitoEnEdicion(null);
@@ -39,17 +53,16 @@ function PanelPrincipal() {
   };
 
   const seleccionarSugerencia = (sugerencia) => {
-    // Validar que no exista ya en hábitos
     const yaExiste = habitos.some(
-      (habito) => habito.nombre.toLowerCase() === sugerencia.nombre.toLowerCase()
+      (habito) =>
+        habito.nombre.toLowerCase() === sugerencia.nombre.toLowerCase(),
     );
 
     if (yaExiste) {
-      alert('Este hábito ya está en tu lista');
+      alert("Este hábito ya está en tu lista");
       return;
     }
 
-    // Abrir modal con datos precargados de la sugerencia
     setSugerenciaSeleccionada(sugerencia);
     setHabitoEnEdicion(null);
     setMostrarModal(true);
@@ -62,7 +75,7 @@ function PanelPrincipal() {
   };
 
   const obtenerFechaActual = () => {
-    return new Date().toLocaleDateString('es-CO');
+    return new Date().toLocaleDateString("es-CO");
   };
 
   const procesarHabito = (datosHabito) => {
@@ -75,8 +88,8 @@ function PanelPrincipal() {
       fechaFin: datosHabito.fechaFin,
       progreso: {
         periodo: datosHabito.progreso?.periodo,
-        frecuencia: datosHabito.progreso?.frecuencia
-      }
+        frecuencia: datosHabito.progreso?.frecuencia,
+      },
     };
   };
 
@@ -91,7 +104,9 @@ function PanelPrincipal() {
       fechaFin: datosProcesados.fechaFin,
       fechaCreacion: obtenerFechaActual(),
       progreso: datosProcesados.progreso,
-      frecuencia: datosProcesados.frecuencia
+      frecuencia: datosProcesados.frecuencia,
+      notificaciones: [], // 👈 Temporal hasta recargar
+      notificacionConfig: { activa: false, medio: null },
     };
 
     setHabitos((prev) => [nuevoHabito, ...prev]);
@@ -103,10 +118,10 @@ function PanelPrincipal() {
         habito.id === habitoEnEdicion.id
           ? {
               ...habito,
-              ...datosProcesados
+              ...datosProcesados,
             }
-          : habito
-      )
+          : habito,
+      ),
     );
   };
 
@@ -114,14 +129,11 @@ function PanelPrincipal() {
     const datosProcesados = procesarHabito(datosHabito);
 
     if (habitoEnEdicion && !sugerenciaSeleccionada) {
-      // Editar hábito existente
       actualizarHabito(datosProcesados);
     } else {
-      // Crear nuevo hábito (ya sea vacío o desde sugerencia)
       crearHabito(datosProcesados);
-      // Si se creó desde sugerencia, cambiar automáticamente a sección de hábitos
       if (sugerenciaSeleccionada) {
-        setSeccionActiva('habitos');
+        setSeccionActiva("habitos");
       }
     }
   };
@@ -130,28 +142,14 @@ function PanelPrincipal() {
     const res = await actualizarProgreso(id);
 
     if (res.success) {
-      // 🔥 Opción PRO: recargar desde backend
-      const usuario = JSON.parse(localStorage.getItem('usuario'));
-
+      // Recargar desde backend
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
       const habitosActualizados = await obtenerHabitosUsuario(usuario._id);
 
       if (habitosActualizados.success) {
-        const habitosFormateados = habitosActualizados.data.map((h) => ({
-          id: h._id,
-          nombre: h.nombre,
-          descripcion: h.descripcion,
-          categoria: h.categoria?.nombreCategoria || 'Sin categoría',
-          horario: h.horario,
-          fechaInicio: h.fechaInicio,
-          fechaFin: h.fechaFin,
-          progreso: h.progreso?.progreso || 0,
-          frecuencia: h.progreso?.frecuencia,
-          periodo: h.progreso?.periodo
-        }));
-
+        const habitosFormateados = formatearHabitos(habitosActualizados.data);
         setHabitos(habitosFormateados);
       }
-
     } else {
       console.error(res.message);
     }
@@ -171,28 +169,30 @@ function PanelPrincipal() {
 
   const resumen = useMemo(() => {
     const activos = habitos.length;
-    const completados = habitos.filter((habito) => habito.progreso >= 100).length;
+    const completados = habitos.filter(
+      (habito) => habito.progreso >= 100,
+    ).length;
 
     return [
       {
-        titulo: 'Hábitos activos',
+        titulo: "Hábitos activos",
         valor: `${activos}`,
-        descripcion: 'Rutinas en seguimiento',
-        icono: <FiActivity />
+        descripcion: "Rutinas en seguimiento",
+        icono: <FiActivity />,
       },
       {
-        titulo: 'Completados',
+        titulo: "Completados",
         valor: `${completados}`,
-        descripcion: 'Hábitos al 100%',
-        icono: <FiCheckSquare />
-      }
+        descripcion: "Hábitos al 100%",
+        icono: <FiCheckSquare />,
+      },
     ];
   }, [habitos]);
 
-
+  // 🔥 Cargar hábitos al iniciar
   useEffect(() => {
     const cargarHabitos = async () => {
-      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
 
       if (!usuario?._id) {
         console.warn("No hay usuario logueado");
@@ -201,22 +201,17 @@ function PanelPrincipal() {
 
       const res = await obtenerHabitosUsuario(usuario._id);
 
-      if (res.success) {
-        // 🔥 Transformar datos del backend al formato que usa tu UI
-        const habitosFormateados = res.data.map((h) => ({
-          id: h._id,
-          nombre: h.nombre,
-          descripcion: h.descripcion,
-          categoria: h.categoria?.nombreCategoria || 'Sin categoría',
-          horario: h.horario,
-          fechaInicio: h.fechaInicio,
-          fechaFin: h.fechaFin,
-          // racha: `${h.progreso?.progreso || 0} días`,
-          progreso: h.progreso?.progreso || 0,
-          frecuencia: h.progreso?.frecuencia,
-          periodo: h.progreso?.periodo
-        }));
+      console.log("=== RESPUESTA DEL BACKEND ===");
+      console.log("res completo:", res);
+      console.log("res.data:", res.data);
+      console.log("Primer hábito:", res.data?.[0]);
+      console.log(
+        "Notificaciones del primer hábito:",
+        res.data?.[0]?.notificaciones,
+      );
 
+      if (res.success) {
+        const habitosFormateados = formatearHabitos(res.data);
         setHabitos(habitosFormateados);
       } else {
         console.error(res.message);
@@ -227,51 +222,56 @@ function PanelPrincipal() {
   }, []);
 
   const formatearFecha = (fecha) => {
-    if (!fecha) return 'No definida';
-
-    return new Date(fecha).toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (!fecha) return "No definida";
+    return new Date(fecha).toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatearHora = (fecha) => {
-    if (!fecha) return '';
-
-    return new Date(fecha).toLocaleTimeString('es-CO', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+    if (!fecha) return "";
+    return new Date(fecha).toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
   return (
-    <div className="d-flex fondo-panel" style={{ minHeight: '100vh' }}>
-      <BarraLateralPanel seccionActiva={seccionActiva} cambiarSeccion={cambiarSeccion} />
+    <div className="d-flex fondo-panel" style={{ minHeight: "100vh" }}>
+      <BarraLateralPanel
+        seccionActiva={seccionActiva}
+        cambiarSeccion={cambiarSeccion}
+      />
 
       <div className="flex-grow-1 d-flex flex-column">
         <BarraSuperiorPanel />
 
-        {seccionActiva === 'habitos' && (
+        {seccionActiva === "habitos" && (
           <>
             <main className="p-4 p-lg-5">
               <section className="tarjeta-bienvenida p-4 p-lg-5 mb-4">
                 <div className="row align-items-center g-4">
                   <div className="col-lg-8">
-                    <p className="mb-2 opacity-75">Organiza tu día con intención</p>
-                    <h2 className="fw-bold mb-3">Construye una mejor versión de ti con cada hábito</h2>
+                    <p className="mb-2 opacity-75">
+                      Organiza tu día con intención
+                    </p>
+                    <h2 className="fw-bold mb-3">
+                      Construye una mejor versión de ti con cada hábito
+                    </h2>
                     <p className="mb-0 opacity-75">
-                      Lleva el control de tus actividades, fortalece tu constancia y transforma
-                      pequeñas acciones en grandes resultados.
+                      Lleva el control de tus actividades, fortalece tu
+                      constancia y transforma pequeñas acciones en grandes
+                      resultados.
                     </p>
                   </div>
 
                   <div className="col-lg-4 text-lg-end">
                     <button
                       className="btn btn-light px-4 py-3 fw-semibold rounded-4 d-inline-flex align-items-center gap-2"
-                      onClick={abrirCrearHabito}
-                    >
+                      onClick={abrirCrearHabito}>
                       <FiPlus />
                       <span>Nuevo hábito</span>
                     </button>
@@ -288,8 +288,12 @@ function PanelPrincipal() {
                           <div className="icono-resumen">{item.icono}</div>
                           <div>
                             <p className="text-muted mb-1">{item.titulo}</p>
-                            <h3 className="fw-bold mb-1 text-morado">{item.valor}</h3>
-                            <p className="mb-0 text-secondary">{item.descripcion}</p>
+                            <h3 className="fw-bold mb-1 text-morado">
+                              {item.valor}
+                            </h3>
+                            <p className="mb-0 text-secondary">
+                              {item.descripcion}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -326,7 +330,7 @@ function PanelPrincipal() {
           </>
         )}
 
-        {seccionActiva === 'sugerencias' && (
+        {seccionActiva === "sugerencias" && (
           <SeccionSugerencias
             sugerencias={sugerenciasHabitos}
             habitosActuales={habitos}
@@ -334,7 +338,7 @@ function PanelPrincipal() {
           />
         )}
 
-        {seccionActiva === 'estadisticas' && (
+        {seccionActiva === "estadisticas" && (
           <main className="p-4 p-lg-5">
             <section className="text-center py-5">
               <h2 className="fw-bold mb-3">Estadísticas</h2>
@@ -345,7 +349,7 @@ function PanelPrincipal() {
           </main>
         )}
 
-        {seccionActiva === 'historial' && (
+        {seccionActiva === "historial" && (
           <main className="p-4 p-lg-5">
             <section className="text-center py-5">
               <h2 className="fw-bold mb-3">Historial</h2>
@@ -363,23 +367,12 @@ function PanelPrincipal() {
         habitoEnEdicion={habitoEnEdicion}
         sugerenciaSeleccionada={sugerenciaSeleccionada}
         onHabitoCreado={() => {
-          // 🔥 recargar desde backend
-          const usuario = JSON.parse(localStorage.getItem('usuario'));
+          // Recargar desde backend después de crear
+          const usuario = JSON.parse(localStorage.getItem("usuario"));
           if (usuario?._id) {
             obtenerHabitosUsuario(usuario._id).then((res) => {
               if (res.success) {
-                const habitosFormateados = res.data.map((h) => ({
-                  id: h._id,
-                  nombre: h.nombre,
-                  descripcion: h.descripcion,
-                  categoria: h.categoria?.nombreCategoria || 'Sin categoría',
-                  horario: h.horario,
-                  fechaInicio: h.fechaInicio,
-                  fechaFin: h.fechaFin,
-                  // racha: `${h.progreso?.progreso || 0} días`,
-                  progreso: h.progreso?.progreso || 0
-                }));
-
+                const habitosFormateados = formatearHabitos(res.data);
                 setHabitos(habitosFormateados);
               }
             });
@@ -391,29 +384,33 @@ function PanelPrincipal() {
         <div
           className="modal d-block"
           tabIndex="-1"
-          style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
-        >
+          style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content border-0 rounded-4 shadow-lg">
               <div className="modal-header border-0 px-4 pt-4 pb-2">
                 <div>
-                  <h4 className="fw-bold mb-1 text-morado">Detalle del hábito</h4>
-                  <p className="text-muted mb-0">Información completa del hábito seleccionado.</p>
+                  <h4 className="fw-bold mb-1 text-morado">
+                    Detalle del hábito
+                  </h4>
+                  <p className="text-muted mb-0">
+                    Información completa del hábito seleccionado.
+                  </p>
                 </div>
 
                 <button
                   type="button"
                   className="btn btn-light rounded-circle d-flex align-items-center justify-content-center"
-                  style={{ width: '42px', height: '42px' }}
-                  onClick={() => setDetalleHabito(null)}
-                >
+                  style={{ width: "42px", height: "42px" }}
+                  onClick={() => setDetalleHabito(null)}>
                   ×
                 </button>
               </div>
 
               <div className="modal-body px-4 pb-4">
                 <div className="mb-3">
-                  <span className="etiqueta-categoria">{detalleHabito.categoria}</span>
+                  <span className="etiqueta-categoria">
+                    {detalleHabito.categoria}
+                  </span>
                 </div>
 
                 <h4 className="fw-bold">{detalleHabito.nombre}</h4>
@@ -423,7 +420,9 @@ function PanelPrincipal() {
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
                       <small className="text-muted d-block mb-1">Horario</small>
-                      <div className="fw-semibold">{formatearHora(detalleHabito.horario) || 'No definido'}</div>
+                      <div className="fw-semibold">
+                        {formatearHora(detalleHabito.horario) || "No definido"}
+                      </div>
                     </div>
                   </div>
 
@@ -436,27 +435,38 @@ function PanelPrincipal() {
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
-                      <small className="text-muted d-block mb-1">Fecha inicio</small>
-                      <div className="fw-semibold">{formatearFecha(detalleHabito.fechaInicio)}</div>
+                      <small className="text-muted d-block mb-1">
+                        Fecha inicio
+                      </small>
+                      <div className="fw-semibold">
+                        {formatearFecha(detalleHabito.fechaInicio)}
+                      </div>
                     </div>
                   </div>
 
                   <div className="col-6">
                     <div className="tarjeta-info-mini">
-                      <small className="text-muted d-block mb-1">Fecha fin</small>
-                      <div className="fw-semibold">{formatearFecha(detalleHabito.fechaFin)}</div>
+                      <small className="text-muted d-block mb-1">
+                        Fecha fin
+                      </small>
+                      <div className="fw-semibold">
+                        {formatearFecha(detalleHabito.fechaFin)}
+                      </div>
                     </div>
                   </div>
 
                   <div className="col-12">
                     <div className="tarjeta-info-mini">
-                      <small className="text-muted d-block mb-1">Progreso</small>
-                      <div className="fw-semibold mb-2">{detalleHabito.progreso}%</div>
+                      <small className="text-muted d-block mb-1">
+                        Progreso
+                      </small>
+                      <div className="fw-semibold mb-2">
+                        {detalleHabito.progreso}%
+                      </div>
                       <div className="progress progreso-personalizado">
                         <div
                           className="progress-bar"
-                          style={{ width: `${detalleHabito.progreso}%` }}
-                        ></div>
+                          style={{ width: `${detalleHabito.progreso}%` }}></div>
                       </div>
                     </div>
                   </div>
@@ -465,8 +475,7 @@ function PanelPrincipal() {
                 <div className="d-flex justify-content-end mt-4">
                   <button
                     className="btn btn-primary px-4 rounded-4"
-                    onClick={() => setDetalleHabito(null)}
-                  >
+                    onClick={() => setDetalleHabito(null)}>
                     Cerrar
                   </button>
                 </div>
