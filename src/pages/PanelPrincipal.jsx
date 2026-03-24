@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { FiActivity, FiCheckSquare, FiPlus } from "react-icons/fi";
 import BarraLateralPanel from "../components/dashboard/BarraLateralPanel";
 import BarraSuperiorPanel from "../components/dashboard/BarraSuperiorPanel";
-import TarjetaHabito from "../components/dashboard/TarjetaHabito";
+import HabitoCard from "../components/HabitoCard";
 import ModalHabito from "../components/dashboard/ModalHabito";
 import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
@@ -412,7 +412,7 @@ function PanelPrincipal() {
                 <div className="row g-4">
                   {habitos.map((habito) => (
                     <div className="col-12 col-md-6 col-xl-4" key={habito.id}>
-                      <TarjetaHabito
+                      <HabitoCard
                         habito={habito}
                         alCompletar={completarHabito}
                         alEditar={abrirEditarHabito}

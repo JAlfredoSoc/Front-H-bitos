@@ -380,12 +380,47 @@ body {
   border-left: 6px solid transparent;
 }
 
-.categoria-salud {
-  border-left-color: #0d6efd !important;
+.tarjeta-bienestar {
+  border-left: 6px solid #198754;
+}
+
+.tarjeta-salud {
+  border-left: 6px solid #0d6efd;
+}
+
+.tarjeta-productividad {
+  border-left: 6px solid #f59e0b;
+}
+
+.categoria-general,
+.categoria-bienestar,
+.categoria-salud,
+.categoria-productividad {
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+
+.categoria-general {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .categoria-bienestar {
-  border-left-color: #198754 !important;
+  background: #e9f7ee;
+  color: #1e7e34;
+}
+
+.categoria-salud {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.categoria-productividad {
+  background: #fff4e5;
+  color: #b45309;
 }
 
 .categoria-estudio {
