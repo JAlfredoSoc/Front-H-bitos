@@ -1,6 +1,6 @@
 // src/components/dashboard/ModalHabito.jsx
 import { useEffect, useState } from "react";
-import { crearHabito } from "../../service/habitoService";
+import { crearHabito, editarHabito } from "../../service/habitoService";
 import { obtenerCategorias } from "../../service/categoriaService";
 
 const estadoInicial = {
@@ -174,9 +174,10 @@ function ModalHabito({
     let resultado;
 
     if (habitoEnEdicion) {
-      // Editar hábito existente (pendiente implementar)
-      // resultado = await actualizarHabito(habitoEnEdicion._id, datosProcesados);
-      setProcesando(false);
+      resultado = await editarHabito(
+        habitoEnEdicion._id || habitoEnEdicion.id,
+        datosProcesados
+      );
     } else {
       resultado = await crearHabito(datosProcesados);
     }

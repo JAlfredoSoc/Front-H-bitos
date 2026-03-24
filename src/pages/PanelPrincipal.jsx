@@ -115,16 +115,24 @@ function PanelPrincipal() {
     setHabitos((prev) => [nuevoHabito, ...prev]);
   };
 
-  const actualizarHabito = (datosProcesados) => {
-    setHabitos((prev) =>
-      prev.map((habito) =>
-        habito.id === habitoEnEdicion.id
+  const actualizarHabito = (habitoActualizado) => {
+    setHabitos(prev =>
+      prev.map(h =>
+        h.id === habitoActualizado._id
           ? {
-              ...habito,
-              ...datosProcesados,
+              ...h,
+              nombre: habitoActualizado.nombre,
+              descripcion: habitoActualizado.descripcion,
+              categoria: habitoActualizado.categoria?.nombreCategoria,
+              horario: habitoActualizado.horario,
+              fechaInicio: habitoActualizado.fechaInicio,
+              fechaFin: habitoActualizado.fechaFin,
+              progreso: habitoActualizado.progreso?.progreso,
+              frecuencia: habitoActualizado.progreso?.frecuencia,
+              periodo: habitoActualizado.progreso?.periodo
             }
-          : habito,
-      ),
+          : h
+      )
     );
   };
 

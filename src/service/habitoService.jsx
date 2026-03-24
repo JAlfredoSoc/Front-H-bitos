@@ -143,3 +143,23 @@ export const clonarHabito = async (habitoId, usuarioID) => {
     }
   }
 };
+
+export const editarHabito = async (habitoId, habitoData) => {
+  try {
+    const response = await API.put(`/editar/${habitoId}`, habitoData);
+
+    return {
+      success: true,
+      data: response.data.data, // 🔥 SOLO el hábito
+      message: response.data.message,
+    };
+
+  } catch (error) {
+    console.error("Error al editar hábito:", error);
+
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al editar el hábito",
+    };
+  }
+};
