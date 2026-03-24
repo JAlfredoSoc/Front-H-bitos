@@ -5,6 +5,7 @@ import {
   FiClock,
   FiCalendar,
   FiBell,
+  FiCopy
 } from "react-icons/fi";
 
 function obtenerClaseCategoria(categoria) {
@@ -26,6 +27,7 @@ function TarjetaHabito({
   alEditar,
   alEliminar,
   alVerDetalle,
+  alClonar
 }) {
   const claseCategoria = obtenerClaseCategoria(habito.categoria);
   
@@ -179,6 +181,13 @@ function TarjetaHabito({
             onClick={() => alEditar(habito)}>
             <FiEdit2 />
             <span>Editar</span>
+          </button>
+
+          <button
+            className="btn btn-suave btn-sm d-flex align-items-center gap-2"
+            onClick={() => alClonar(habito._id || habito.id)}>
+            <FiCopy />
+            <span>Clonar</span>
           </button>
 
           <button

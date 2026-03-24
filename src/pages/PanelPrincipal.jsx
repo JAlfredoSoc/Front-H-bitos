@@ -9,7 +9,10 @@ import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
 
 import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
-import { actualizarProgreso } from "../../src/service/habitoService";
+import {
+  actualizarProgreso,
+  clonarHabito,
+} from "../../src/service/habitoService";
 
 function PanelPrincipal() {
   const [habitos, setHabitos] = useState([]);
@@ -160,6 +163,35 @@ function PanelPrincipal() {
 
     if (detalleHabito && detalleHabito.id === id) {
       setDetalleHabito(null);
+    }
+  };
+
+  // PanelPrincipal.jsx - Sin estado de carga
+  const clonarHabitoHandler = async (habitoId) => {
+    try {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      if (!usuario || !usuario._id) {
+        alert("Usuario no encontrado");
+        return;
+      }
+
+      const resultado = await clonarHabito(habitoId, usuario._id); // 🔥 AQUÍ
+
+      if (resultado.success) {
+        const res = await obtenerHabitosUsuario(usuario._id);
+
+        if (res.success) {
+          const habitosFormateados = formatearHabitos(res.data);
+          setHabitos(habitosFormateados);
+          alert("✅ Hábito clonado exitosamente");
+        }
+      } else {
+        alert(`❌ Error: ${resultado.message}`);
+      }
+    } catch (error) {
+      console.error("Error en clonación:", error);
+      alert("Error al clonar el hábito");
     }
   };
 
@@ -321,6 +353,7 @@ function PanelPrincipal() {
                         alEditar={abrirEditarHabito}
                         alEliminar={eliminarHabito}
                         alVerDetalle={verDetalleHabito}
+                        alClonar={clonarHabitoHandler}
                       />
                     </div>
                   ))}
