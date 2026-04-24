@@ -279,62 +279,7 @@ function PanelPrincipal() {
     });
   };
 
-  // Datos constantes para Estadísticas e Historial
-  const estadisticasConstantes = [
-    {
-      titulo: "Total de hábitos",
-      valor: habitos.length,
-      descripcion: "Hábitos registrados",
-    },
-    {
-      titulo: "Hábitos completados",
-      valor: habitos.filter((h) => (h.progreso || 0) >= 100).length,
-      descripcion: "Rutinas finalizadas",
-    },
-    {
-      titulo: "Días de racha",
-      valor: 7,
-      descripcion: "Racha activa actual",
-    },
-    {
-      titulo: "Progreso medio",
-      valor:
-        habitos.length > 0
-          ? Math.round(
-              habitos.reduce((acc, h) => acc + (Number(h.progreso) || 0), 0) /
-                habitos.length,
-            )
-          : 0,
-      descripcion: "Promedio de avance",
-    },
-  ];
 
-  const historialConstante = [
-    {
-      fecha: "22/03/2026",
-      accion: "Completado",
-      habito: "Beber agua",
-      detalle: "10/10 recordatorios",
-    },
-    {
-      fecha: "21/03/2026",
-      accion: "Creado",
-      habito: "Enviar emails",
-      detalle: "Objetivo diario agregado",
-    },
-    {
-      fecha: "20/03/2026",
-      accion: "Clonado",
-      habito: "Caminar",
-      detalle: "Clon del hábito principal",
-    },
-    {
-      fecha: "19/03/2026",
-      accion: "Actualizado",
-      habito: "Leer",
-      detalle: "Ajuste horario",
-    },
-  ];
 
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: "100vh" }}>
@@ -436,66 +381,6 @@ function PanelPrincipal() {
           />
         )}
 
-        {seccionActiva === "estadisticas" && (
-          <main className="p-4 p-lg-5">
-            <section className="text-center py-4">
-              <h2 className="fw-bold mb-3">Estadísticas</h2>
-              <p className="text-muted mb-4">
-                Datos estáticos (y calculados sobre hábitos actuales) para validar la sección.
-              </p>
-
-              <div className="row g-4">
-                {estadisticasConstantes.map((item) => (
-                  <div className="col-6 col-md-3" key={item.titulo}>
-                    <div className="card tarjeta-resumen h-100">
-                      <div className="card-body p-3 text-center">
-                        <p className="text-muted mb-1">{item.titulo}</p>
-                        <h3 className="fw-bold mb-1 text-morado">{item.valor}</h3>
-                        <p className="mb-0 text-secondary">{item.descripcion}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </main>
-        )}
-
-        {seccionActiva === "historial" && (
-          <main className="p-4 p-lg-5">
-            <section className="py-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                  <h2 className="fw-bold mb-1">Historial</h2>
-                  <p className="text-muted mb-0">Actividad reciente y cambios aplicados sobre tus hábitos.</p>
-                </div>
-              </div>
-
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Acción</th>
-                      <th>Hábito</th>
-                      <th>Detalle</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historialConstante.map((item, idx) => (
-                      <tr key={`${item.fecha}-${idx}`}>
-                        <td>{item.fecha}</td>
-                        <td>{item.accion}</td>
-                        <td>{item.habito}</td>
-                        <td>{item.detalle}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </main>
-        )}
       </div>
 
       <ModalHabito
