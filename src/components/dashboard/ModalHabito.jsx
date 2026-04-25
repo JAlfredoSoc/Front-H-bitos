@@ -98,6 +98,7 @@ function ModalHabito({
         frecuencia: sugerenciaSeleccionada.frecuencia || "",
         notificacionActiva: false,
         tipoNotificacion: "recordatorio",
+        diasSeleccionados: []
       });
     } else {
       setFormulario(estadoInicial);
