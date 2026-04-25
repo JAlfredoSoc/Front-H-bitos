@@ -32,6 +32,68 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
     });
   };
 
+  const calcularProgreso = () => {
+    let total = 0;
+
+    if (habito.periodo === "diario") {
+      total = habito.frecuencia;
+    }
+
+    if (habito.periodo === "semanal") {
+      total = habito.frecuenciaSemanal;
+    }
+
+    if (!total || total === 0) return 0;
+
+    return Math.min(100, Math.round((habito.progreso / total) * 100));
+  };
+
+  const obtenerInicialDia = (dia) => {
+    const mapa = {
+      Lunes: "L",
+      Martes: "M",
+      Miércoles: "MI", 
+      Jueves: "J",
+      Viernes: "V",
+      Sábado: "S",
+      Domingo: "D",
+    };
+
+    return mapa[dia] || "";
+  };
+
+  const obtenerProximasFechas = () => {
+    if (!habito.fechaInicio || !habito.diasSeleccionados?.length) return [];
+
+    const diasMap = {
+      Domingo: 0,
+      Lunes: 1,
+      Martes: 2,
+      Miércoles: 3,
+      Jueves: 4,
+      Viernes: 5,
+      Sábado: 6,
+    };
+
+    const fechas = [];
+    const fechaInicio = new Date(habito.fechaInicio);
+
+    // buscamos próximas 5 ocurrencias
+    let fecha = new Date(fechaInicio);
+
+    while (fechas.length < 2) {
+      if (habito.diasSeleccionados.includes(
+        Object.keys(diasMap).find(d => diasMap[d] === fecha.getDay())
+      )) {
+        fechas.push(new Date(fecha));
+      }
+
+      fecha.setDate(fecha.getDate() + 1);
+    }
+
+    return fechas;
+  };
+
   const tieneNotificacion = habito.notificaciones && habito.notificaciones.length > 0;
 
   const contenido = (
@@ -88,12 +150,47 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
             </div>
           </div>
         </div>
+
+        {habito.diasSeleccionados?.length > 0 && (
+          <div className="col-6">
+            <div className="tarjeta-info-mini h-100">
+              <small className="text-muted d-block mb-1">Días</small>
+              <div className="fw-semibold d-flex gap-1 flex-wrap">
+                {habito.diasSeleccionados.map((dia) => (
+                  <span key={dia} className="badge bg-secondary">
+                    {obtenerInicialDia(dia)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {habito.diasSeleccionados?.length > 0 && (
+        <div className="col-12">
+          <div className="tarjeta-info-mini h-100">
+            <small className="text-muted d-block mb-1">Próximas ejecuciones</small>
+            <div className="fw-semibold">
+              {obtenerProximasFechas().map((fecha, i) => (
+                <div key={i}>
+                  {fecha.toLocaleDateString("es-CO", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
         <div className="col-6">
           <div className="tarjeta-info-mini h-100">
             <small className="text-muted d-block mb-1">Frecuencia</small>
             <div className="fw-semibold">
               <span>
-                {habito.frecuencia || "N/A"} vez/veces por {habito.periodo?.slice(0, -2) || "periodo"}
+                {habito.frecuencia || "N/A"}
               </span>
             </div>
           </div>
@@ -101,7 +198,7 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
         {tieneNotificacion && (
           <div className="col-12">
             <div className="tarjeta-info-mini h-100 bg-light p-2 rounded">
-              <small className="text-muted d-block mb-1">🔔 Notificaciones</small>
+              <small className="text-muted d-block mb-1">Notificaciones</small>
               <div className="fw-semibold">Recibirás recordatorios para este hábito</div>
             </div>
           </div>
@@ -110,13 +207,16 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
 
       <div className="d-flex justify-content-between mb-2">
         <small className="text-muted">Progreso</small>
-        <small className="fw-semibold">{habito.progreso}%</small>
+        <small className="fw-semibold">{calcularProgreso()}%</small>
       </div>
+
+
+
       <div className="progress progreso-personalizado mb-4">
         <div className={progressBarClass}
              role="progressbar"
-             style={{ width: `${habito.progreso}%` }}
-             aria-valuenow={habito.progreso}
+             style={{ width: `${calcularProgreso()}%` }}
+             aria-valuenow={calcularProgreso()}
              aria-valuemin="0"
              aria-valuemax="100"
         />

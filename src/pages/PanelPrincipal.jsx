@@ -37,7 +37,9 @@ function PanelPrincipal() {
       progreso: h.progreso?.progreso || 0,
       frecuencia: h.progreso?.frecuencia,
       periodo: h.progreso?.periodo,
-      notificaciones: h.notificaciones || [], // 👈 AGREGADO: array de notificaciones
+      notificaciones: h.notificaciones || [],
+      diasSeleccionados: h.diasSeleccionados || [],
+      frecuenciaSemanal: h.frecuenciaSemanal || 0,
     }));
   };
 
@@ -240,15 +242,6 @@ function PanelPrincipal() {
       }
 
       const res = await obtenerHabitosUsuario(usuario._id);
-
-      console.log("=== RESPUESTA DEL BACKEND ===");
-      console.log("res completo:", res);
-      console.log("res.data:", res.data);
-      console.log("Primer hábito:", res.data?.[0]);
-      console.log(
-        "Notificaciones del primer hábito:",
-        res.data?.[0]?.notificaciones,
-      );
 
       if (res.success) {
         const habitosFormateados = formatearHabitos(res.data);
