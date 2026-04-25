@@ -39,7 +39,7 @@ function PanelPrincipal() {
       periodo: h.progreso?.periodo,
       notificaciones: h.notificaciones || [],
       diasSeleccionados: h.diasSeleccionados || [],
-      frecuenciaSemanal: h.frecuenciaSemanal || 0,
+      frecuenciaSemanal: h.progreso?.frecuenciaSemanal || 0,
     }));
   };
 

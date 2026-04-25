@@ -189,9 +189,18 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
           <div className="tarjeta-info-mini h-100">
             <small className="text-muted d-block mb-1">Frecuencia</small>
             <div className="fw-semibold">
-              <span>
-                {habito.frecuencia || "N/A"}
-              </span>
+
+              {habito.periodo === "semanal" ? (
+                <>
+                  <div>{habito.frecuencia} semana(s)</div>
+                  <div className="text-muted" style={{ fontSize: "0.85rem" }}>
+                    {habito.frecuenciaSemanal} repeticiones en total
+                  </div>
+                </>
+              ) : (
+                <span>{habito.frecuencia || "N/A"} vez/veces</span>
+              )}
+
             </div>
           </div>
         </div>
