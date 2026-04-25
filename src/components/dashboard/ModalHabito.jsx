@@ -170,16 +170,23 @@ function ModalHabito({
     const fechaBase = formulario.fechaInicio || new Date().toISOString().split("T")[0];
     const horarioCompleto = new Date(`${fechaBase}T${formulario.horario}`);
 
+    const fechaFinCalculada = calcularFechaFin();
+    const frecuenciaSemanalCalculada = calcularFrecuenciaSemanal();
+
     return {
       nombre: formulario.nombre.trim(),
       descripcion: formulario.descripcion.trim(),
       categoria: formulario.categoria,
       horario: horarioCompleto,
       fechaInicio: formulario.fechaInicio,
-      fechaFin: formulario.fechaFin || null,
+      fechaFin: fechaFinCalculada,
       usuarioId: usuario?._id,
       periodo: formulario.periodo,
       frecuencia: formulario.frecuencia,
+
+      diasSeleccionados: formulario.diasSeleccionados, 
+      frecuenciaSemanal: frecuenciaSemanalCalculada, 
+
       notificacionActiva: formulario.notificacionActiva,
       tipoNotificacion: formulario.tipoNotificacion,
     };
@@ -224,18 +231,58 @@ function ModalHabito({
     }
   };
 
-const manejarSeleccionDia = (dia) => {
-  setFormulario((prev) => {
-    const yaExiste = prev.diasSeleccionados.includes(dia);
+  const manejarSeleccionDia = (dia) => {
+    setFormulario((prev) => {
+      const yaExiste = prev.diasSeleccionados.includes(dia);
 
-    return {
-      ...prev,
-      diasSeleccionados: yaExiste
-        ? prev.diasSeleccionados.filter((d) => d !== dia)
-        : [...prev.diasSeleccionados, dia],
-    };
-  });
-};
+      return {
+        ...prev,
+        diasSeleccionados: yaExiste
+          ? prev.diasSeleccionados.filter((d) => d !== dia)
+          : [...prev.diasSeleccionados, dia],
+      };
+    });
+  };
+
+
+  const calcularFechaFin = () => {
+    if (!formulario.fechaInicio) return null;
+
+    const fechaInicio = new Date(formulario.fechaInicio);
+
+    if (formulario.periodo === "semanal") {
+      const semanas = Number(formulario.frecuencia);
+      const diasExtra = semanas * 7;
+
+      const fechaFin = new Date(fechaInicio);
+      fechaFin.setDate(fechaInicio.getDate() + diasExtra);
+
+      return fechaFin.toISOString().split("T")[0];
+    }
+
+    if (formulario.periodo === "diario") {
+      const dias = formulario.diasSeleccionados.length;
+
+      const fechaFin = new Date(fechaInicio);
+      fechaFin.setDate(fechaInicio.getDate() + dias);
+
+      return fechaFin.toISOString().split("T")[0];
+    }
+
+    return null;
+  };
+
+
+  const calcularFrecuenciaSemanal = () => {
+    if (formulario.periodo === "semanal") {
+      return Number(formulario.frecuencia) * formulario.diasSeleccionados.length;
+    }
+    return 0;
+  };
+
+
+
+
 
   if (!mostrar) return null;
 
@@ -428,6 +475,12 @@ const manejarSeleccionDia = (dia) => {
                   />
                 </div>
 
+                {formulario.fechaInicio && (
+                <small className="text-muted">
+                  📅 Fecha fin estimada: <strong>{calcularFechaFin()}</strong>
+                </small>
+              )}
+
                 
               </div>
 
@@ -471,19 +524,19 @@ const manejarSeleccionDia = (dia) => {
                         }}
                         disabled={procesando}
                       >
-                        <option value="email">📧 Correo electrónico</option>
-                        <option value="whatsapp">💬 WhatsApp</option>
-                        <option value="recordatorio">⏰ Recordatorio (app)</option>
+                        <option value="email">Correo electrónico</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="recordatorio">Recordatorio (app)</option>
                       </select>
 
                       {formulario.tipoNotificacion === "whatsapp" && (
                         <small className="text-muted d-block mt-2">
-                          💡 Asegúrate de tener registrado tu número de teléfono en tu perfil
+                          Asegúrate de tener registrado tu número de teléfono en tu perfil
                         </small>
                       )}
                       {formulario.tipoNotificacion === "email" && (
                         <small className="text-muted d-block mt-2">
-                          💡 Las notificaciones se enviarán a tu correo registrado
+                          Las notificaciones se enviarán a tu correo registrado
                         </small>
                       )}
                     </div>
