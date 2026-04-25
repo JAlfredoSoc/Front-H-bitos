@@ -152,11 +152,11 @@ function PanelPrincipal() {
   };
 
   const completarHabito = async (id) => {
-    const res = await actualizarProgreso(id);
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    const res = await actualizarProgreso(id, usuario._id);
 
     if (res.success) {
-      // Recargar desde backend
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
       const habitosActualizados = await obtenerHabitosUsuario(usuario._id);
 
       if (habitosActualizados.success) {
