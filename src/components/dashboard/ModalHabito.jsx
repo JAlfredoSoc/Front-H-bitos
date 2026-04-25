@@ -12,6 +12,7 @@ const estadoInicial = {
   fechaFin: "",
   periodo: "",
   frecuencia: "",
+  diasSeleccionados: [],
   notificacionActiva: false,
   tipoNotificacion: "recordatorio",
 };
@@ -29,6 +30,7 @@ function ModalHabito({
   const [mensajeError, setMensajeError] = useState("");
   const [mensajeExito, setMensajeExito] = useState("");
   const [categorias, setCategorias] = useState([]);
+  const [totalRepeticiones, setTotalRepeticiones] = useState(0);
 
   // Cargar categorías
   useEffect(() => {
@@ -43,6 +45,25 @@ function ModalHabito({
       cargarCategorias();
     }
   }, [mostrar]);
+
+  useEffect(() => {
+    if (formulario.periodo === "diario") {
+      setFormulario((prev) => ({
+        ...prev,
+        frecuencia: prev.diasSeleccionados.length,
+      }));
+    }
+  }, [formulario.diasSeleccionados, formulario.periodo]);
+
+  useEffect(() => {
+    if (formulario.periodo === "semanal") {
+      const total = Number(formulario.frecuencia * formulario.diasSeleccionados.length);
+
+      setTotalRepeticiones(total);
+    } else {
+      setTotalRepeticiones(0);
+    }
+  }, [formulario.frecuencia, formulario.diasSeleccionados, formulario.periodo]);
 
   // Inicializar formulario
   useEffect(() => {
@@ -132,8 +153,12 @@ function ModalHabito({
       nuevosErrores.periodo = "El periodo es obligatorio.";
     }
 
-    if (!formulario.frecuencia) {
+    if (!formulario.frecuencia && formulario.periodo !== "diario") {
       nuevosErrores.frecuencia = "La frecuencia es obligatoria.";
+    }
+
+    if ((formulario.periodo === "semanal" || formulario.periodo === "diario") && formulario.diasSeleccionados.length === 0) {
+      nuevosErrores.diasSeleccionados = "Selecciona al menos un día.";
     }
 
     setErrores(nuevosErrores);
@@ -198,6 +223,19 @@ function ModalHabito({
       setProcesando(false);
     }
   };
+
+const manejarSeleccionDia = (dia) => {
+  setFormulario((prev) => {
+    const yaExiste = prev.diasSeleccionados.includes(dia);
+
+    return {
+      ...prev,
+      diasSeleccionados: yaExiste
+        ? prev.diasSeleccionados.filter((d) => d !== dia)
+        : [...prev.diasSeleccionados, dia],
+    };
+  });
+};
 
   if (!mostrar) return null;
 
@@ -315,10 +353,34 @@ function ModalHabito({
                     <option value="">Seleccione</option>
                     <option value="diario">Diario</option>
                     <option value="semanal">Semanal</option>
-                    <option value="mensual">Mensual</option>
+                    {/* <option value="mensual">Mensual</option> */}
                   </select>
                   {errores.periodo && <div className="invalid-feedback">{errores.periodo}</div>}
                 </div>
+
+
+                {(formulario.periodo === "semanal"  ||  formulario.periodo === "diario") &&(
+                <div className="col-12">
+                  <label className="form-label fw-semibold">Días de la semana *</label>
+                  <div className="d-flex flex-wrap gap-2">
+                    {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"].map((dia) => (
+                      <button
+                        type="button"
+                        key={dia}
+                        className={`btn rounded-pill ${
+                          formulario.diasSeleccionados.includes(dia)
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                        }`}
+                        onClick={() => manejarSeleccionDia(dia)}
+                        disabled={procesando}
+                      >
+                        {dia}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">Frecuencia *</label>
@@ -329,10 +391,16 @@ function ModalHabito({
                     value={formulario.frecuencia}
                     onChange={manejarCambio}
                     placeholder="Ej: 1, 2, 3..."
-                    disabled={procesando}
+                    disabled={procesando || formulario.periodo === "diario"}
                   />
                   {errores.frecuencia && <div className="invalid-feedback">{errores.frecuencia}</div>}
                 </div>
+
+                {formulario.periodo === "semanal" && formulario.frecuencia > 0 && formulario.diasSeleccionados.length > 0 && (
+                  <div className="alert alert-info mt-2">
+                    En total el hábito se repetirá <strong>{totalRepeticiones}</strong> veces.
+                  </div>
+                )}
 
                 {/* Horario y Fechas */}
                 <div className="col-md-6">
@@ -360,18 +428,7 @@ function ModalHabito({
                   />
                 </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold">Fecha fin</label>
-                  <input
-                    type="date"
-                    className={`form-control form-control-lg rounded-4 ${errores.fechaFin ? "is-invalid" : ""}`}
-                    name="fechaFin"
-                    value={formulario.fechaFin}
-                    onChange={manejarCambio}
-                    disabled={procesando}
-                  />
-                  {errores.fechaFin && <div className="invalid-feedback">{errores.fechaFin}</div>}
-                </div>
+                
               </div>
 
               {/* 🔔 SECCIÓN DE NOTIFICACIONES - UBICADA AL FINAL DEL FORMULARIO */}
