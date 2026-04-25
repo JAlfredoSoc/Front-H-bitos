@@ -12,6 +12,7 @@ import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
 import {
   actualizarProgreso,
   clonarHabito,
+  eliminarHabito,
 } from "../../src/service/habitoService";
 
 function PanelPrincipal() {
@@ -171,11 +172,27 @@ function PanelPrincipal() {
     }
   };
 
-  const eliminarHabito = (id) => {
-    setHabitos((prev) => prev.filter((habito) => habito.id !== id));
+  const eliminarHabitoHandler = async (id) => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    if (detalleHabito && detalleHabito.id === id) {
-      setDetalleHabito(null);
+    if (!usuario?._id) {
+      console.error("Usuario no encontrado");
+      return;
+    }
+
+    if (!window.confirm("¿Seguro que quieres eliminar este hábito?")) return;
+
+    const res = await eliminarHabito(id, usuario._id);
+
+    if (res.success) {
+      // 🔥 actualizar estado local
+      setHabitos((prev) => prev.filter((habito) => habito.id !== id));
+
+      if (detalleHabito && detalleHabito.id === id) {
+        setDetalleHabito(null);
+      }
+    } else {
+      console.error(res.message);
     }
   };
 
@@ -357,7 +374,7 @@ function PanelPrincipal() {
                         habito={habito}
                         alCompletar={completarHabito}
                         alEditar={abrirEditarHabito}
-                        alEliminar={eliminarHabito}
+                        alEliminar={eliminarHabitoHandler}
                         alVerDetalle={verDetalleHabito}
                         alClonar={clonarHabitoHandler}
                       />

@@ -166,3 +166,26 @@ export const editarHabito = async (habitoId, habitoData) => {
     };
   }
 };
+
+export const eliminarHabito = async (habitoId, usuarioId) => {
+  try {
+    const res = await API.delete(`/eliminar/${habitoId}`, {
+      data: { usuarioId }, // 🔥 importante en DELETE
+    });
+
+    return {
+      success: true,
+      data: res.data,
+      message: "Hábito eliminado correctamente",
+    };
+  } catch (error) {
+    console.error("Error al eliminar hábito:", error);
+
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        "Error al eliminar el hábito",
+    };
+  }
+};
