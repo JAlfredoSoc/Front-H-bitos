@@ -38,7 +38,7 @@ function PanelPrincipal() {
       frecuencia: h.progreso?.frecuencia,
       periodo: h.progreso?.periodo,
       notificaciones: h.notificaciones || [],
-      diasSeleccionados: h.diasSeleccionados || [],
+      diasSeleccionados: Array.isArray(h.diasSeleccionados) ? h.diasSeleccionados: [],
       frecuenciaSemanal: h.progreso?.frecuenciaSemanal || 0,
     }));
   };
@@ -49,7 +49,10 @@ function PanelPrincipal() {
   };
 
   const abrirEditarHabito = (habito) => {
-    setHabitoEnEdicion(habito);
+    setHabitoEnEdicion({
+      ...habito,
+      diasSeleccionados: habito.diasSeleccionados || [],
+    });
     setMostrarModal(true);
   };
 

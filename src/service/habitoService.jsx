@@ -105,13 +105,13 @@ export const obtenerHabitosUsuario = async (usuarioID) => {
 };
 
 // PARA APLICAR EL PROTOTYPE
-export const clonarHabito = async (habitoId, usuarioID) => {
+export const clonarHabito = async (habitoId, usuarioId) => {
   try {
     console.log("Clonando hábito con ID:", habitoId); // Debug
     
     // Usar API.post correctamente (API es tu instancia de axios)
     const response = await API.post(`/clonar/${habitoId}`,{
-        usuarioID
+        usuarioId
     });
     
     console.log("Respuesta del servidor:", response.data); // Debug

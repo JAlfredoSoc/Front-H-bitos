@@ -72,11 +72,17 @@ function ModalHabito({
         nombre: habitoEnEdicion.nombre || "",
         descripcion: habitoEnEdicion.descripcion || "",
         categoria: habitoEnEdicion.categoria?._id || habitoEnEdicion.categoria || "",
-        horario: habitoEnEdicion.horario ? new Date(habitoEnEdicion.horario).toTimeString().slice(0, 5) : "",
+        horario: habitoEnEdicion.horario 
+          ? new Date(habitoEnEdicion.horario).toTimeString().slice(0, 5) 
+          : "",
         fechaInicio: habitoEnEdicion.fechaInicio?.split("T")[0] || "",
         fechaFin: habitoEnEdicion.fechaFin?.split("T")[0] || "",
         periodo: habitoEnEdicion.periodo || "",
         frecuencia: habitoEnEdicion.frecuencia || "",
+
+        // 🔥 ESTA ES LA LÍNEA QUE TE FALTA
+        diasSeleccionados: habitoEnEdicion.diasSeleccionados || [],
+
         notificacionActiva: habitoEnEdicion.notificacionConfig?.activa || false,
         tipoNotificacion: habitoEnEdicion.notificacionConfig?.medio || "recordatorio",
       });
@@ -415,7 +421,7 @@ function ModalHabito({
                         type="button"
                         key={dia}
                         className={`btn rounded-pill ${
-                          formulario.diasSeleccionados.includes(dia)
+                          formulario.diasSeleccionados?.includes(dia)
                             ? "btn-primary"
                             : "btn-outline-primary"
                         }`}
