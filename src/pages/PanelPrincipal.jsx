@@ -6,6 +6,7 @@ import BarraSuperiorPanel from "../components/dashboard/BarraSuperiorPanel";
 import HabitoCard from "../components/HabitoCard";
 import ModalHabito from "../components/dashboard/ModalHabito";
 import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
+import HistorialUsuario from "../components/dashboard/HistorialUsuario";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
 
 import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
@@ -392,6 +393,14 @@ function PanelPrincipal() {
             habitosActuales={habitos}
             alSeleccionar={seleccionarSugerencia}
           />
+        )}
+
+        {seccionActiva === "historial" && (
+          <main className="p-4 p-lg-5">
+            <HistorialUsuario
+              idUsuario={JSON.parse(localStorage.getItem("usuario"))?._id}
+            />
+          </main>
         )}
 
       </div>

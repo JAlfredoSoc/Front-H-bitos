@@ -7,7 +7,7 @@ import SeccionInformativa from '../components/common/SeccionInformativa';
 import PiePagina from '../components/common/PiePagina';
 
 function PaginaPrincipal() {
-  const navigate = useNavigate(); // 2. Inicializamos la navegación
+  const navigate = useNavigate();
   const [mostrarModalInicio, setMostrarModalInicio] = useState(false);
   const [mostrarModalRegistro, setMostrarModalRegistro] = useState(false);
 
