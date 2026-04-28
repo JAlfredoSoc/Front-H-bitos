@@ -2,60 +2,52 @@
 import { useState, useEffect } from 'react';
 import TarjetaSugerencia from './TarjetaSugerencia';
 import { getObtenerSugerencias } from '../../../src/service/habitoService';
-import {obtenerCategorias} from '../../service/categoriaService'
+import { obtenerCategorias } from '../../service/categoriaService';
+
+const CATEGORIAS_FIJAS = ['Salud', 'Ejercicio', 'Bienestar', 'Productividad', 'Estudio', 'Trabajo'];
+
+const COLORES_CATEGORIA = {
+  Salud:         { fondo: "#e7f1ff", texto: "#0d6efd", borde: "#0d6efd" },
+  Ejercicio:     { fondo: "#e9f7ee", texto: "#1e7e34", borde: "#1e7e34" },
+  Bienestar:     { fondo: "#f3e8ff", texto: "#6d28d9", borde: "#6d28d9" },
+  Productividad: { fondo: "#fff8e1", texto: "#b45309", borde: "#f59e0b" },
+  Estudio:       { fondo: "#ede9fe", texto: "#5b21b6", borde: "#5b21b6" },
+  Trabajo:       { fondo: "#f1f5f9", texto: "#475569", borde: "#475569" },
+};
 
 function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
   const [sugerencias, setSugerencias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
-  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     cargarSugerencias();
   }, []);
 
-  useEffect(() => {
-    const cargarCategorias = async () => {
-      const res = await obtenerCategorias();
-
-      if (res.success) {
-        setCategorias(res.data);
-      }
-    };
-
-    cargarCategorias();
-  }, []);
-
   const cargarSugerencias = async () => {
     setCargando(true);
     setError('');
-    
     const resultado = await getObtenerSugerencias();
-    
     if (resultado.success) {
-      console.log('Sugerencias cargadas:', resultado.data); // Para debug
       setSugerencias(resultado.data);
     } else {
       setError(resultado.message);
     }
-    
     setCargando(false);
   };
 
-  // Filtrar sugerencias que no estén ya en hábitos actuales
   const sugerenciasDisponibles = sugerencias
-    .filter((sugerencia) =>
+    .filter((s) =>
       !habitosActuales?.some(
-        (habito) =>
-          habito.nombre?.toLowerCase() === sugerencia.nombre?.toLowerCase()
+        (h) => h.nombre?.toLowerCase() === s.nombre?.toLowerCase()
       )
     )
-    .filter((sugerencia) => {
+    .filter((s) => {
       if (!categoriaSeleccionada) return true;
-
-      return sugerencia.categoria?._id === categoriaSeleccionada;
-  });
+      const nombre = s.categoria?.nombreCategoria || s.categoria?.nombre || s.categoria || '';
+      return nombre === categoriaSeleccionada;
+    });
 
   if (cargando) {
     return (
@@ -112,20 +104,47 @@ function SeccionSugerencias({ habitosActuales, alSeleccionar }) {
         </p>
       </section>
 
-      <div className="mb-4">
-        <select
-          className="form-select"
-          value={categoriaSeleccionada}
-          onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+      <div className="d-flex flex-wrap gap-2 mb-4">
+        <button
+          onClick={() => setCategoriaSeleccionada('')}
+          style={{
+            border: !categoriaSeleccionada ? '1.5px solid #6d28d9' : '1.5px solid #ececf3',
+            borderRadius: 999,
+            padding: '6px 16px',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            background: !categoriaSeleccionada ? '#f5f3ff' : '#fafafa',
+            color: !categoriaSeleccionada ? '#6d28d9' : '#6b7280',
+            transition: 'all 0.15s ease',
+          }}
         >
-          <option value="">Todas las categorías</option>
+          Todas
+        </button>
 
-          {categorias.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.nombreCategoria}
-            </option>
-          ))}
-        </select>
+        {CATEGORIAS_FIJAS.map((cat) => {
+          const activo = categoriaSeleccionada === cat;
+          const color = COLORES_CATEGORIA[cat] || { fondo: '#f3f4f6', texto: '#6b7280', borde: '#d1d5db' };
+          return (
+            <button
+              key={cat}
+              onClick={() => setCategoriaSeleccionada(activo ? '' : cat)}
+              style={{
+                border: activo ? `1.5px solid ${color.borde}` : '1.5px solid #ececf3',
+                borderRadius: 999,
+                padding: '6px 16px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: activo ? color.fondo : '#fafafa',
+                color: activo ? color.texto : '#6b7280',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {cat}
+            </button>
+          );
+        })}
       </div>
 
       <section>
