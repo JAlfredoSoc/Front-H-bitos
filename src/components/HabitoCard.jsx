@@ -9,10 +9,20 @@ import {
 } from "react-icons/fi";
 import { obtenerFactoryHabito } from "../factories/factorySelector";
 
-function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, alClonar }) {
+function HabitoCard({
+  habito,
+  alCompletar,
+  alEditar,
+  alEliminar,
+  alVerDetalle,
+  alClonar,
+}) {
   const factory = obtenerFactoryHabito(habito.categoria);
   const badgeClass = factory.getBadgeClass();
   const progressBarClass = factory.getProgressBarClass();
+
+  const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
+  console.log(esRutina);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
@@ -52,7 +62,7 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
     const mapa = {
       Lunes: "L",
       Martes: "M",
-      Miércoles: "MI", 
+      Miércoles: "MI",
       Jueves: "J",
       Viernes: "V",
       Sábado: "S",
@@ -82,9 +92,11 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
     let fecha = new Date(fechaInicio);
 
     while (fechas.length < 2) {
-      if (habito.diasSeleccionados.includes(
-        Object.keys(diasMap).find(d => diasMap[d] === fecha.getDay())
-      )) {
+      if (
+        habito.diasSeleccionados.includes(
+          Object.keys(diasMap).find((d) => diasMap[d] === fecha.getDay()),
+        )
+      ) {
         fechas.push(new Date(fecha));
       }
 
@@ -94,7 +106,8 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
     return fechas;
   };
 
-  const tieneNotificacion = habito.notificaciones && habito.notificaciones.length > 0;
+  const tieneNotificacion =
+    habito.notificaciones && habito.notificaciones.length > 0;
 
   const contenido = (
     <div className="card-body p-4 d-flex flex-column">
@@ -102,7 +115,11 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
         <div className="d-flex align-items-center gap-2 flex-wrap">
           <span className={badgeClass}>{habito.categoria || "General"}</span>
           {tieneNotificacion && (
-            <span className="d-inline-flex align-items-center gap-1 text-primary" title="Notificaciones activas" style={{ fontSize: "0.75rem" }}>
+            <span
+              className="d-inline-flex align-items-center gap-1 text-primary"
+              title="Notificaciones activas"
+              style={{ fontSize: "0.75rem" }}
+            >
               <FiBell size={12} />
               <span className="d-none d-sm-inline">Recordatorio</span>
             </span>
@@ -111,8 +128,41 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
         <small className="text-muted">{habito.fechaCreacion}</small>
       </div>
 
-      <h5 className="fw-bold mb-2">{habito.nombre}</h5>
-      <p className="text-muted mb-3">{habito.descripcion}</p>
+      {/* <h5 className="fw-bold mb-2">{habito.nombre}</h5>
+      <p className="text-muted mb-3">{habito.descripcion}</p> */}
+
+      {esRutina ? (
+        <>
+          <h5 className="fw-bold mb-3">{habito.nombre}</h5>
+
+          <div className="d-flex flex-column gap-2 mb-3">
+            {habito.subHabitos.map((sub) => (
+              <div
+                key={sub._id}
+                className="p-2 border rounded d-flex justify-content-between align-items-center"
+              >
+                <div>
+                  <div className="fw-semibold">{sub.nombre}</div>
+                  <small className="text-muted">{sub.descripcion}</small>
+                </div>
+
+                <span
+                  className={`badge ${
+                    sub.estado === "completado" ? "bg-success" : "bg-secondary"
+                  }`}
+                >
+                  {sub.estado}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <h5 className="fw-bold mb-2"> {habito.nombre}</h5>
+          <p className="text-muted mb-3">{habito.descripcion}</p>
+        </>
+      )}
 
       <div className="row g-3 mb-3">
         <div className="col-6">
@@ -167,29 +217,30 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
         )}
 
         {habito.diasSeleccionados?.length > 0 && (
-        <div className="col-12">
-          <div className="tarjeta-info-mini h-100">
-            <small className="text-muted d-block mb-1">Próximas ejecuciones</small>
-            <div className="fw-semibold">
-              {obtenerProximasFechas().map((fecha, i) => (
-                <div key={i}>
-                  {fecha.toLocaleDateString("es-CO", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </div>
-              ))}
+          <div className="col-12">
+            <div className="tarjeta-info-mini h-100">
+              <small className="text-muted d-block mb-1">
+                Próximas ejecuciones
+              </small>
+              <div className="fw-semibold">
+                {obtenerProximasFechas().map((fecha, i) => (
+                  <div key={i}>
+                    {fecha.toLocaleDateString("es-CO", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         <div className="col-6">
           <div className="tarjeta-info-mini h-100">
             <small className="text-muted d-block mb-1">Frecuencia</small>
             <div className="fw-semibold">
-
               {habito.periodo === "semanal" ? (
                 <>
                   <div>{habito.frecuencia} semana(s)</div>
@@ -200,7 +251,6 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
               ) : (
                 <span>{habito.frecuencia || "N/A"} vez/veces</span>
               )}
-
             </div>
           </div>
         </div>
@@ -208,7 +258,9 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
           <div className="col-12">
             <div className="tarjeta-info-mini h-100 bg-light p-2 rounded">
               <small className="text-muted d-block mb-1">Notificaciones</small>
-              <div className="fw-semibold">Recibirás recordatorios para este hábito</div>
+              <div className="fw-semibold">
+                Recibirás recordatorios para este hábito
+              </div>
             </div>
           </div>
         )}
@@ -219,15 +271,14 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
         <small className="fw-semibold">{calcularProgreso()}%</small>
       </div>
 
-
-
       <div className="progress progreso-personalizado mb-4">
-        <div className={progressBarClass}
-             role="progressbar"
-             style={{ width: `${calcularProgreso()}%` }}
-             aria-valuenow={calcularProgreso()}
-             aria-valuemin="0"
-             aria-valuemax="100"
+        <div
+          className={progressBarClass}
+          role="progressbar"
+          style={{ width: `${calcularProgreso()}%` }}
+          aria-valuenow={calcularProgreso()}
+          aria-valuemin="0"
+          aria-valuemax="100"
         />
       </div>
 
@@ -241,17 +292,26 @@ function HabitoCard({ habito, alCompletar, alEditar, alEliminar, alVerDetalle, a
           <span>Completar</span>
         </button>
 
-        <button className="btn btn-suave btn-sm d-flex align-items-center gap-2" onClick={() => alEditar(habito)}>
+        <button
+          className="btn btn-suave btn-sm d-flex align-items-center gap-2"
+          onClick={() => alEditar(habito)}
+        >
           <FiEdit2 />
           <span>Editar</span>
         </button>
 
-        <button className="btn btn-suave btn-sm d-flex align-items-center gap-2" onClick={() => alClonar(habito._id || habito.id)}>
+        <button
+          className="btn btn-suave btn-sm d-flex align-items-center gap-2"
+          onClick={() => alClonar(habito._id || habito.id)}
+        >
           <FiCopy />
           <span>Clonar</span>
         </button>
 
-        <button className="btn btn-suave btn-sm d-flex align-items-center gap-2" onClick={() => alEliminar(habito._id || habito.id)}>
+        <button
+          className="btn btn-suave btn-sm d-flex align-items-center gap-2"
+          onClick={() => alEliminar(habito._id || habito.id)}
+        >
           <FiTrash2 />
           <span>Eliminar</span>
         </button>

@@ -43,6 +43,7 @@ function PanelPrincipal() {
       notificaciones: h.notificaciones || [],
       diasSeleccionados: Array.isArray(h.diasSeleccionados) ? h.diasSeleccionados: [],
       frecuenciaSemanal: h.progreso?.frecuenciaSemanal || 0,
+      subHabitos: h.subHabitos || [],
     }));
   };
 
