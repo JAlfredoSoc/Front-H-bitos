@@ -31,6 +31,7 @@ function ModalHabito({
   const [mensajeExito, setMensajeExito] = useState("");
   const [categorias, setCategorias] = useState([]);
   const [totalRepeticiones, setTotalRepeticiones] = useState(0);
+  const [tipo, setTipo] = useState("simple"); // o "rutina"
 
   // Cargar categorías
   useEffect(() => {
@@ -341,6 +342,18 @@ function ModalHabito({
                 <button type="button" className="btn-close" onClick={() => setMensajeError("")} />
               </div>
             )}
+
+            <div className="mb-3">
+              <label className="fw-semibold">Tipo</label>
+              <select
+                className="form-select"
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value)}
+              >
+                <option value="simple">Hábito simple</option>
+                <option value="rutina">Rutina</option>
+              </select>
+            </div>
 
             <form onSubmit={manejarSubmit}>
               <div className="row g-3">

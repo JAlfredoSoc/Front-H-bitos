@@ -287,22 +287,20 @@ function HabitoCard({
 
   const renderRutina = () => (
     <div className="card-body p-4 d-flex flex-column">
-
       <h5 className="fw-bold mb-3">🧩 {habito.nombre}</h5>
       <div className="d-flex flex-column gap-3">
-
         {habito.subHabitos.map((sub) => {
-
           const progresoSub = sub.progreso?.progreso || 0;
           const totalSub = sub.frecuencia || 1;
-          const porcentaje = Math.min(100, Math.round((progresoSub / totalSub) * 100));
-
+          const porcentaje = Math.min(
+            100,
+            Math.round((progresoSub / totalSub) * 100),
+          );
           return (
             <div
               key={sub._id}
               className="p-3 border rounded d-flex flex-column gap-2"
             >
-
               {/* INFO */}
               <div className="d-flex justify-content-between align-items-center">
                 <div>
@@ -318,29 +316,57 @@ function HabitoCard({
                   {sub.estado}
                 </span>
               </div>
-
-              
               <div className="progress">
                 <div
                   className="progress-bar"
                   style={{ width: `${porcentaje}%` }}
                 />
               </div>
-
               <button
-                className="btn btn-primary btn-sm"
-                onClick={() => alCompletar(sub._id)}
-                disabled={porcentaje >= 100}
+                className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3"
+                onClick={() => alCompletar(sub._id || sub._id)}
+                disabled={(sub.progreso?.progreso || 0) >= (sub.frecuencia || 1)}
               >
-                <FiCheckCircle /> Completar
+                <FiCheckCircle />
+                <span>Completar</span>
               </button>
-
             </div>
           );
         })}
+
+        <div className="mt-3">
+          <div className="d-flex justify-content-between mb-2">
+            <small className="text-muted">Progreso de la rutina</small>
+            <small className="fw-semibold">{calcularProgresoRutina()}%</small>
+          </div>
+
+          <div className="progress">
+            <div
+              className="progress-bar"
+              style={{ width: `${calcularProgresoRutina()}%` }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
+
+  const calcularProgresoRutina = () => {
+    if (!habito.subHabitos || habito.subHabitos.length === 0) return 0;
+
+    const total = habito.subHabitos.length;
+
+    const suma = habito.subHabitos.reduce((acc, sub) => {
+      const progreso = sub.progreso?.progreso || 0;
+      const frecuencia = sub.frecuencia || 1;
+
+      const porcentajeSub = Math.min(100, (progreso / frecuencia) * 100);
+
+      return acc + porcentajeSub;
+    }, 0);
+
+    return Math.round(suma / total);
+  };
 
 
 
