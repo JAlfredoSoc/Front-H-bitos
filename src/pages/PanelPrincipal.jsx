@@ -24,6 +24,7 @@ function PanelPrincipal() {
   const [habitoEnEdicion, setHabitoEnEdicion] = useState(null);
   const [sugerenciaSeleccionada, setSugerenciaSeleccionada] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
+  const [estadisticas, setEstadisticas] = useState(null);
 
   // 🔥 Función para formatear hábitos (reutilizable)
   const formatearHabitos = (habitosData) => {
@@ -232,16 +233,28 @@ function PanelPrincipal() {
     setDetalleHabito(habito);
   };
 
+  const rutinas = useMemo(() => {
+    return habitos.filter(h => h.subHabitos && h.subHabitos.length > 0);
+  }, [habitos]);  
+
+  const habitosSimples = useMemo(() => {
+    return habitos.filter(h => !h.subHabitos || h.subHabitos.length === 0);
+  }, [habitos]);
+
   const resumen = useMemo(() => {
     const activos = habitos.length;
-    const completados = habitos.filter(
-      (habito) => habito.progreso >= 100,
-    ).length;
+    const completados = estadisticas?.resumen?.completados || 0;
 
     return [
       {
         titulo: "Hábitos activos",
         valor: `${activos}`,
+        descripcion: "Rutinas en seguimiento",
+        icono: <FiActivity />,
+      },
+      {
+        titulo: "Rutinas Activas",
+        valor: `${rutinas.length}`,
         descripcion: "Rutinas en seguimiento",
         icono: <FiActivity />,
       },
@@ -275,7 +288,24 @@ function PanelPrincipal() {
     };
 
     cargarHabitos();
-  }, []);
+
+      // Cargar estadísticas
+      const cargarEstadisticas = async () => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      if (!usuario?._id) return;
+
+      const res = await estadisticasUsuario(usuario._id);
+
+      if (res.success) {
+        setEstadisticas(res.data);
+      } else {
+        console.error(res.message);
+      }
+    };
+
+    cargarEstadisticas();
+    }, []);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";

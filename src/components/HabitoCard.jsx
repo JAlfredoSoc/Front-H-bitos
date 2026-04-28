@@ -22,7 +22,6 @@ function HabitoCard({
   const progressBarClass = factory.getProgressBarClass();
 
   const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
-  console.log(esRutina);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
@@ -109,7 +108,7 @@ function HabitoCard({
   const tieneNotificacion =
     habito.notificaciones && habito.notificaciones.length > 0;
 
-  const contenido = (
+  const renderSimple =()  => (
     <div className="card-body p-4 d-flex flex-column">
       <div className="d-flex justify-content-between align-items-start mb-3">
         <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -128,41 +127,8 @@ function HabitoCard({
         <small className="text-muted">{habito.fechaCreacion}</small>
       </div>
 
-      {/* <h5 className="fw-bold mb-2">{habito.nombre}</h5>
-      <p className="text-muted mb-3">{habito.descripcion}</p> */}
-
-      {esRutina ? (
-        <>
-          <h5 className="fw-bold mb-3">{habito.nombre}</h5>
-
-          <div className="d-flex flex-column gap-2 mb-3">
-            {habito.subHabitos.map((sub) => (
-              <div
-                key={sub._id}
-                className="p-2 border rounded d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <div className="fw-semibold">{sub.nombre}</div>
-                  <small className="text-muted">{sub.descripcion}</small>
-                </div>
-
-                <span
-                  className={`badge ${
-                    sub.estado === "completado" ? "bg-success" : "bg-secondary"
-                  }`}
-                >
-                  {sub.estado}
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <h5 className="fw-bold mb-2"> {habito.nombre}</h5>
-          <p className="text-muted mb-3">{habito.descripcion}</p>
-        </>
-      )}
+      <h5 className="fw-bold mb-2">{habito.nombre}</h5>
+      <p className="text-muted mb-3">{habito.descripcion}</p> 
 
       <div className="row g-3 mb-3">
         <div className="col-6">
@@ -319,7 +285,68 @@ function HabitoCard({
     </div>
   );
 
-  return factory.renderContainer(contenido);
+  const renderRutina = () => (
+    <div className="card-body p-4 d-flex flex-column">
+
+      <h5 className="fw-bold mb-3">🧩 {habito.nombre}</h5>
+      <div className="d-flex flex-column gap-3">
+
+        {habito.subHabitos.map((sub) => {
+
+          const progresoSub = sub.progreso?.progreso || 0;
+          const totalSub = sub.frecuencia || 1;
+          const porcentaje = Math.min(100, Math.round((progresoSub / totalSub) * 100));
+
+          return (
+            <div
+              key={sub._id}
+              className="p-3 border rounded d-flex flex-column gap-2"
+            >
+
+              {/* INFO */}
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <div className="fw-semibold">{sub.nombre}</div>
+                  <small className="text-muted">{sub.descripcion}</small>
+                </div>
+
+                <span
+                  className={`badge ${
+                    sub.estado === "completado" ? "bg-success" : "bg-secondary"
+                  }`}
+                >
+                  {sub.estado}
+                </span>
+              </div>
+
+              
+              <div className="progress">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${porcentaje}%` }}
+                />
+              </div>
+
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => alCompletar(sub._id)}
+                disabled={porcentaje >= 100}
+              >
+                <FiCheckCircle /> Completar
+              </button>
+
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+
+
+  return factory.renderContainer(
+    esRutina ? renderRutina() : renderSimple()
+  );
 }
 
 export default HabitoCard;
