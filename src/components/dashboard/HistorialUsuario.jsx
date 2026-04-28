@@ -3,8 +3,7 @@ import {
   FiClock, FiCheckCircle, FiTrash2, FiPlusCircle,
   FiTrendingUp, FiActivity, FiSearch, FiX, FiFilter,
 } from "react-icons/fi";
-import { obtenerHistorialUsuarioMock as obtenerHistorialUsuario } from "../../service/historial.mock.js";
-
+import { obtenerHistorialUsuario } from "../../service/historialService";
 // ─── Configuración de acciones ───────────────────────────────────────────────
 
 const ACCIONES = {
