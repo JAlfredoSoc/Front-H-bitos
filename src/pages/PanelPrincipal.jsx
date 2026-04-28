@@ -8,8 +8,9 @@ import ModalHabito from "../components/dashboard/ModalHabito";
 import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
 import HistorialUsuario from "../components/dashboard/HistorialUsuario";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
+import SeccionEstadisticas from "../components/dashboard/SeccionEstadisticas";
 
-import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
+import { obtenerHabitosUsuario, estadisticasUsuario } from "../../src/service/usuarioService";
 import {
   actualizarProgreso,
   clonarHabito,
@@ -402,6 +403,12 @@ function PanelPrincipal() {
             />
           </main>
         )}
+
+        {seccionActiva === "estadisticas" && (
+        <SeccionEstadisticas
+          usuarioId={JSON.parse(localStorage.getItem("usuario"))?._id}
+        />
+      )}
 
       </div>
 
