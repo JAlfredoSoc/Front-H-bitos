@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router'; // 1. Importamos el navegador
 import BarraNavegacion from '../components/common/BarraNavegacion';
 import ModalInicioSesion from '../components/common/ModalInicioSesion';
@@ -10,6 +10,12 @@ function PaginaPrincipal() {
   const navigate = useNavigate();
   const [mostrarModalInicio, setMostrarModalInicio] = useState(false);
   const [mostrarModalRegistro, setMostrarModalRegistro] = useState(false);
+
+  // BYPASS TEMPORAL - Redirige si ya hay sesión activa
+  useEffect(() => {
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) navigate('/panel-principal');
+  }, [navigate]);
 
   const abrirModalInicio = () => {
     setMostrarModalRegistro(false);

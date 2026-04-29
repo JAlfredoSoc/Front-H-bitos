@@ -370,7 +370,7 @@ function PanelPrincipal() {
               <section className="mb-4">
                 <div className="row g-4">
                   {resumen.map((item) => (
-                    <div className="col-12 col-md-6" key={item.titulo}>
+                    <div className="col-12 col-md-4" key={item.titulo}>
                       <div className="card tarjeta-resumen h-100">
                         <div className="card-body p-4 d-flex align-items-center gap-3">
                           <div className="icono-resumen">{item.icono}</div>

@@ -4,6 +4,7 @@ import {
   FiClock,
   FiHeart
 } from 'react-icons/fi';
+import logo from '../../assets/logo.jpeg';
 
 function BarraLateralPanel({ seccionActiva, cambiarSeccion }) {
   const menu = [
@@ -16,7 +17,9 @@ function BarraLateralPanel({ seccionActiva, cambiarSeccion }) {
   return (
     <aside className="sidebar-panel">
       <div className="logo-panel">
-        <div className="logo-icono">H</div>
+        <div className="logo-icono" style={{ background: "transparent", boxShadow: "none", padding: 0, overflow: "hidden" }}>
+          <img src={logo} alt="Habits UP" style={{ width: "48px", height: "48px", objectFit: "contain", borderRadius: 12 }} />
+        </div>
         <div className="logo-texto">
           <h4>Habits UP</h4>
           <span>Panel personal</span>
