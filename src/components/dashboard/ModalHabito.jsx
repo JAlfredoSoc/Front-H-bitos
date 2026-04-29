@@ -78,8 +78,8 @@ function ModalHabito({
           : "",
         fechaInicio: habitoEnEdicion.fechaInicio?.split("T")[0] || "",
         fechaFin: habitoEnEdicion.fechaFin?.split("T")[0] || "",
-        periodo: habitoEnEdicion.periodo || "",
-        frecuencia: habitoEnEdicion.frecuencia || "",
+        periodo: habitoEnEdicion.periodo || habitoEnEdicion.progreso?.periodo || "",
+        frecuencia: habitoEnEdicion.frecuencia || habitoEnEdicion.progreso?.frecuencia || "",
 
         // 🔥 ESTA ES LA LÍNEA QUE TE FALTA
         diasSeleccionados: habitoEnEdicion.diasSeleccionados || [],

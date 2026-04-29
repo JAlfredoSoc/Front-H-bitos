@@ -8,6 +8,7 @@ import {
   FiCopy,
 } from "react-icons/fi";
 import { obtenerFactoryHabito } from "../factories/factorySelector";
+import { useState } from "react";
 
 function HabitoCard({
   habito,
@@ -20,6 +21,7 @@ function HabitoCard({
   const factory = obtenerFactoryHabito(habito.categoria);
   const badgeClass = factory.getBadgeClass();
   const progressBarClass = factory.getProgressBarClass();
+  const [subActivo, setSubActivo] = useState(null);
 
   const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
 
@@ -287,7 +289,7 @@ function HabitoCard({
 
   const renderRutina = () => (
     <div className="card-body p-4 d-flex flex-column">
-      <h5 className="fw-bold mb-3">🧩 {habito.nombre}</h5>
+      <h5 className="fw-bold mb-3">{habito.nombre}</h5>
       <div className="d-flex flex-column gap-3">
         {habito.subHabitos.map((sub) => {
           const progresoSub = sub.progreso?.progreso || 0;
@@ -296,13 +298,20 @@ function HabitoCard({
             100,
             Math.round((progresoSub / totalSub) * 100),
           );
+
+          const estaAbierto = subActivo === sub._id;
+
           return (
             <div
               key={sub._id}
               className="p-3 border rounded d-flex flex-column gap-2"
             >
-              {/* INFO */}
-              <div className="d-flex justify-content-between align-items-center">
+              {/* HEADER CLICKABLE */}
+              <div
+                className="d-flex justify-content-between align-items-center"
+                style={{ cursor: "pointer" }}
+                onClick={() => setSubActivo(estaAbierto ? null : sub._id)}
+              >
                 <div>
                   <div className="fw-semibold">{sub.nombre}</div>
                   <small className="text-muted">{sub.descripcion}</small>
@@ -316,20 +325,53 @@ function HabitoCard({
                   {sub.estado}
                 </span>
               </div>
+
+              {/* PROGRESO */}
               <div className="progress">
                 <div
                   className="progress-bar"
                   style={{ width: `${porcentaje}%` }}
                 />
               </div>
+
+              {/* BOTÓN COMPLETAR */}
               <button
                 className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3"
-                onClick={() => alCompletar(sub._id || sub._id)}
-                disabled={(sub.progreso?.progreso || 0) >= (sub.frecuencia || 1)}
+                onClick={() => alCompletar(sub._id)}
+                disabled={progresoSub >= totalSub}
               >
                 <FiCheckCircle />
                 <span>Completar</span>
               </button>
+
+              {/* 🔥 DETALLE DESPLEGABLE */}
+              {estaAbierto && (
+                <div className="mt-3 p-2 bg-light rounded">
+                  <div className="mb-2">
+                    <small className="text-muted">Horario</small>
+                    <div>{formatearHora(sub.horario) || "No definido"}</div>
+                  </div>
+
+                  <div className="mb-2">
+                    <small className="text-muted">Inicio</small>
+                    <div>{formatearFecha(sub.fechaInicio)}</div>
+                  </div>
+
+                  <div className="mb-2">
+                    <small className="text-muted">Fin</small>
+                    <div>{formatearFecha(sub.fechaFin)}</div>
+                  </div>
+
+                  {/* 🔥 BOTÓN EDITAR */}
+                  <button
+                    className="btn btn-suave btn-sm d-flex align-items-center gap-2 mt-2"
+                    onClick={() => alEditar(sub)} // 👈 IMPORTANTE
+                  >
+                    <FiEdit2 />
+                    <span>Editar</span>
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
