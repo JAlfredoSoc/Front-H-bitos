@@ -32,6 +32,11 @@ function ModalHabito({
   const [categorias, setCategorias] = useState([]);
   const [totalRepeticiones, setTotalRepeticiones] = useState(0);
   const [tipo, setTipo] = useState("simple"); // o "rutina"
+  const [subHabitos, setSubHabitos] = useState([]);
+  const [nuevoSub, setNuevoSub] = useState({
+    nombre: "",
+    descripcion: ""
+  });
 
   // Cargar categorías
   useEffect(() => {
@@ -197,6 +202,7 @@ function ModalHabito({
 
       notificacionActiva: formulario.notificacionActiva,
       tipoNotificacion: formulario.tipoNotificacion,
+      subHabitos: tipo === "rutina" ? subHabitos : [],
     };
   };
 
@@ -306,14 +312,20 @@ function ModalHabito({
           <div className="modal-header border-0 px-4 pt-4 pb-2">
             <div>
               <h4 className="fw-bold mb-1 text-morado">
-                {habitoEnEdicion ? "Editar hábito" : "Nuevo hábito"}
+                {habitoEnEdicion
+                  ? tipo === "rutina"
+                    ? "Editar rutina"
+                    : "Editar hábito"
+                  : tipo === "rutina"
+                  ? "Nueva rutina"
+                  : "Nuevo hábito"}
               </h4>
               <p className="text-muted mb-0">
                 {habitoEnEdicion
                   ? "Actualiza la información de tu hábito."
                   : sugerenciaSeleccionada
-                  ? `Basado en la sugerencia: "${sugerenciaSeleccionada.nombre}". Personaliza según tus necesidades.`
-                  : "Valida y registra un nuevo hábito en tu panel."}
+                    ? `Basado en la sugerencia: "${sugerenciaSeleccionada.nombre}". Personaliza según tus necesidades.`
+                    : "Valida y registra un nuevo hábito en tu panel."}
               </p>
             </div>
             <button
@@ -328,18 +340,32 @@ function ModalHabito({
           <div className="modal-body px-4 pb-4">
             {/* Mensajes de éxito/error */}
             {mensajeExito && (
-              <div className="alert alert-success alert-dismissible fade show mb-3" role="alert">
+              <div
+                className="alert alert-success alert-dismissible fade show mb-3"
+                role="alert"
+              >
                 <i className="bi bi-check-circle-fill me-2"></i>
                 {mensajeExito}
-                <button type="button" className="btn-close" onClick={() => setMensajeExito("")} />
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setMensajeExito("")}
+                />
               </div>
             )}
 
             {mensajeError && (
-              <div className="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+              <div
+                className="alert alert-danger alert-dismissible fade show mb-3"
+                role="alert"
+              >
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
                 {mensajeError}
-                <button type="button" className="btn-close" onClick={() => setMensajeError("")} />
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setMensajeError("")}
+                />
               </div>
             )}
 
@@ -359,7 +385,11 @@ function ModalHabito({
               <div className="row g-3">
                 {/* Nombre */}
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Nombre del hábito *</label>
+                  <label className="form-label fw-semibold">
+                    {tipo === "rutina"
+                      ? "Nombre de la rutina *"
+                      : "Nombre del hábito *"}
+                  </label>
                   <input
                     type="text"
                     className={`form-control form-control-lg rounded-4 ${errores.nombre ? "is-invalid" : ""}`}
@@ -369,12 +399,16 @@ function ModalHabito({
                     placeholder="Ejemplo: Tomar agua"
                     disabled={procesando}
                   />
-                  {errores.nombre && <div className="invalid-feedback">{errores.nombre}</div>}
+                  {errores.nombre && (
+                    <div className="invalid-feedback">{errores.nombre}</div>
+                  )}
                 </div>
 
                 {/* Descripción */}
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Descripción *</label>
+                  <label className="form-label fw-semibold">
+                    Descripción *
+                  </label>
                   <textarea
                     className={`form-control rounded-4 ${errores.descripcion ? "is-invalid" : ""}`}
                     name="descripcion"
@@ -384,8 +418,86 @@ function ModalHabito({
                     placeholder="Describe el objetivo o detalle del hábito"
                     disabled={procesando}
                   />
-                  {errores.descripcion && <div className="invalid-feedback">{errores.descripcion}</div>}
+                  {errores.descripcion && (
+                    <div className="invalid-feedback">
+                      {errores.descripcion}
+                    </div>
+                  )}
                 </div>
+
+                {tipo === "rutina" && (
+                  <div className="mt-3">
+                    <label className="fw-semibold">Subhábitos</label>
+
+                    {/* INPUTS */}
+                    <div className="d-flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Nombre"
+                        value={nuevoSub.nombre}
+                        onChange={(e) =>
+                          setNuevoSub({ ...nuevoSub, nombre: e.target.value })
+                        }
+                      />
+
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Descripción"
+                        value={nuevoSub.descripcion}
+                        onChange={(e) =>
+                          setNuevoSub({
+                            ...nuevoSub,
+                            descripcion: e.target.value,
+                          })
+                        }
+                      />
+
+                      <button
+                        type="button"
+                        className="btn btn-success"
+                        onClick={() => {
+                          if (!nuevoSub.nombre || !nuevoSub.descripcion) return;
+
+                          setSubHabitos([...subHabitos, nuevoSub]);
+                          setNuevoSub({ nombre: "", descripcion: "" });
+                        }}
+                      >
+                        ➕
+                      </button>
+                    </div>
+
+                    {/* LISTA */}
+                    <div className="d-flex flex-column gap-2">
+                      {subHabitos.map((sub, index) => (
+                        <div
+                          key={index}
+                          className="p-2 border rounded d-flex justify-content-between"
+                        >
+                          <div>
+                            <div className="fw-semibold">{sub.nombre}</div>
+                            <small className="text-muted">
+                              {sub.descripcion}
+                            </small>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger"
+                            onClick={() =>
+                              setSubHabitos(
+                                subHabitos.filter((_, i) => i !== index),
+                              )
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Categoría */}
                 <div className="col-12">
@@ -404,7 +516,9 @@ function ModalHabito({
                       </option>
                     ))}
                   </select>
-                  {errores.categoria && <div className="invalid-feedback">{errores.categoria}</div>}
+                  {errores.categoria && (
+                    <div className="invalid-feedback">{errores.categoria}</div>
+                  )}
                 </div>
 
                 {/* Periodo y Frecuencia */}
@@ -422,32 +536,44 @@ function ModalHabito({
                     <option value="semanal">Semanal</option>
                     {/* <option value="mensual">Mensual</option> */}
                   </select>
-                  {errores.periodo && <div className="invalid-feedback">{errores.periodo}</div>}
+                  {errores.periodo && (
+                    <div className="invalid-feedback">{errores.periodo}</div>
+                  )}
                 </div>
 
-
-                {(formulario.periodo === "semanal"  ||  formulario.periodo === "diario") &&(
-                <div className="col-12">
-                  <label className="form-label fw-semibold">Días de la semana *</label>
-                  <div className="d-flex flex-wrap gap-2">
-                    {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"].map((dia) => (
-                      <button
-                        type="button"
-                        key={dia}
-                        className={`btn rounded-pill ${
-                          formulario.diasSeleccionados?.includes(dia)
-                            ? "btn-primary"
-                            : "btn-outline-primary"
-                        }`}
-                        onClick={() => manejarSeleccionDia(dia)}
-                        disabled={procesando}
-                      >
-                        {dia}
-                      </button>
-                    ))}
+                {(formulario.periodo === "semanal" ||
+                  formulario.periodo === "diario") && (
+                  <div className="col-12">
+                    <label className="form-label fw-semibold">
+                      Días de la semana *
+                    </label>
+                    <div className="d-flex flex-wrap gap-2">
+                      {[
+                        "Lunes",
+                        "Martes",
+                        "Miércoles",
+                        "Jueves",
+                        "Viernes",
+                        "Sábado",
+                        "Domingo",
+                      ].map((dia) => (
+                        <button
+                          type="button"
+                          key={dia}
+                          className={`btn rounded-pill ${
+                            formulario.diasSeleccionados?.includes(dia)
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
+                          onClick={() => manejarSeleccionDia(dia)}
+                          disabled={procesando}
+                        >
+                          {dia}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">Frecuencia *</label>
@@ -460,14 +586,19 @@ function ModalHabito({
                     placeholder="Ej: 1, 2, 3..."
                     disabled={procesando || formulario.periodo === "diario"}
                   />
-                  {errores.frecuencia && <div className="invalid-feedback">{errores.frecuencia}</div>}
+                  {errores.frecuencia && (
+                    <div className="invalid-feedback">{errores.frecuencia}</div>
+                  )}
                 </div>
 
-                {formulario.periodo === "semanal" && formulario.frecuencia > 0 && formulario.diasSeleccionados.length > 0 && (
-                  <div className="alert alert-info mt-2">
-                    En total el hábito se repetirá <strong>{totalRepeticiones}</strong> veces.
-                  </div>
-                )}
+                {formulario.periodo === "semanal" &&
+                  formulario.frecuencia > 0 &&
+                  formulario.diasSeleccionados.length > 0 && (
+                    <div className="alert alert-info mt-2">
+                      En total el hábito se repetirá{" "}
+                      <strong>{totalRepeticiones}</strong> veces.
+                    </div>
+                  )}
 
                 {/* Horario y Fechas */}
                 <div className="col-md-6">
@@ -480,7 +611,9 @@ function ModalHabito({
                     onChange={manejarCambio}
                     disabled={procesando}
                   />
-                  {errores.horario && <div className="invalid-feedback">{errores.horario}</div>}
+                  {errores.horario && (
+                    <div className="invalid-feedback">{errores.horario}</div>
+                  )}
                 </div>
 
                 <div className="col-md-6">
@@ -496,12 +629,10 @@ function ModalHabito({
                 </div>
 
                 {formulario.fechaInicio && (
-                <small className="text-muted">
-                  📅 Fecha fin estimada: <strong>{calcularFechaFin()}</strong>
-                </small>
-              )}
-
-                
+                  <small className="text-muted">
+                    📅 Fecha fin estimada: <strong>{calcularFechaFin()}</strong>
+                  </small>
+                )}
               </div>
 
               {/* 🔔 SECCIÓN DE NOTIFICACIONES - UBICADA AL FINAL DEL FORMULARIO */}
@@ -521,7 +652,10 @@ function ModalHabito({
                       }}
                       disabled={procesando}
                     />
-                    <label className="form-check-label fw-semibold" htmlFor="notificacionActiva">
+                    <label
+                      className="form-check-label fw-semibold"
+                      htmlFor="notificacionActiva"
+                    >
                       🔔 Activar notificaciones
                     </label>
                     <small className="text-muted d-block mt-1">
@@ -531,7 +665,9 @@ function ModalHabito({
 
                   {formulario.notificacionActiva && (
                     <div className="mt-2">
-                      <label className="form-label fw-semibold">Medio de notificación</label>
+                      <label className="form-label fw-semibold">
+                        Medio de notificación
+                      </label>
                       <select
                         className="form-select rounded-4"
                         name="tipoNotificacion"
@@ -551,7 +687,8 @@ function ModalHabito({
 
                       {formulario.tipoNotificacion === "whatsapp" && (
                         <small className="text-muted d-block mt-2">
-                          Asegúrate de tener registrado tu número de teléfono en tu perfil
+                          Asegúrate de tener registrado tu número de teléfono en
+                          tu perfil
                         </small>
                       )}
                       {formulario.tipoNotificacion === "email" && (
@@ -582,7 +719,10 @@ function ModalHabito({
                 >
                   {procesando ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" />
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      />
                       Procesando...
                     </>
                   ) : habitoEnEdicion ? (
