@@ -89,3 +89,13 @@ export const obtenerHabitosUsuario = async (usuarioId) => {
         };
     } 
 };
+
+export const estadisticasUsuario = async (usuarioId) => {
+    try {
+        const res = await API.get(`/estadisticas/${usuarioId}`);
+        return res.data;
+    } catch (error) {
+        console.error("Error obteniendo estadísticas:", error);
+        throw error;
+    }
+};

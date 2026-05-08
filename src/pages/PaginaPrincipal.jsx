@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router'; // 1. Importamos el navegador
 import BarraNavegacion from '../components/common/BarraNavegacion';
 import ModalInicioSesion from '../components/common/ModalInicioSesion';
@@ -7,9 +7,15 @@ import SeccionInformativa from '../components/common/SeccionInformativa';
 import PiePagina from '../components/common/PiePagina';
 
 function PaginaPrincipal() {
-  const navigate = useNavigate(); // 2. Inicializamos la navegación
+  const navigate = useNavigate();
   const [mostrarModalInicio, setMostrarModalInicio] = useState(false);
   const [mostrarModalRegistro, setMostrarModalRegistro] = useState(false);
+
+  // BYPASS TEMPORAL - Redirige si ya hay sesión activa
+  useEffect(() => {
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) navigate('/panel-principal');
+  }, [navigate]);
 
   const abrirModalInicio = () => {
     setMostrarModalRegistro(false);
@@ -70,7 +76,7 @@ function PaginaPrincipal() {
               className="btn btn-primary px-4 py-2 mt-4"
               onClick={entrarDirecto} 
             >
-              Comienza ahora (Bypass)
+              Comienza ahora 
             </button>
           </div>
         </div>

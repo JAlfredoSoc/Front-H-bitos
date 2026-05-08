@@ -260,6 +260,56 @@ h6 {
   padding: 12px;
 }
 
+/* Mejora visual: estadísticas e historial */
+.seccion-estadisticas {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: var(--sombra-suave);
+}
+
+.seccion-estadisticas .estadistica-item {
+  background: #faf8ff;
+  border: 1px solid #e9e6ff;
+  border-radius: 18px;
+  padding: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.seccion-estadisticas .estadistica-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra-hover);
+}
+
+.historial-panel {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: var(--sombra-suave);
+}
+
+.historial-panel table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.historial-panel thead tr {
+  background: #f5f3ff;
+}
+
+.historial-panel th,
+.historial-panel td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1efff;
+  vertical-align: middle;
+}
+
+.historial-panel tbody tr:hover {
+  background: #faf7fe;
+}
+
 .progreso-personalizado {
   height: 10px;
   border-radius: 999px;
@@ -330,12 +380,47 @@ body {
   border-left: 6px solid transparent;
 }
 
-.categoria-salud {
-  border-left-color: #0d6efd !important;
+.tarjeta-bienestar {
+  border-left: 6px solid #198754;
+}
+
+.tarjeta-salud {
+  border-left: 6px solid #0d6efd;
+}
+
+.tarjeta-productividad {
+  border-left: 6px solid #f59e0b;
+}
+
+.categoria-general,
+.categoria-bienestar,
+.categoria-salud,
+.categoria-productividad {
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+
+.categoria-general {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .categoria-bienestar {
-  border-left-color: #198754 !important;
+  background: #e9f7ee;
+  color: #1e7e34;
+}
+
+.categoria-salud {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.categoria-productividad {
+  background: #fff4e5;
+  color: #b45309;
 }
 
 .categoria-estudio {

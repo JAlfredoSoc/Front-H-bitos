@@ -58,20 +58,23 @@ export const crearHabito = async (habitoData) => {
   }
 };
 
-export const actualizarProgreso = async (habitoId) => {
+export const actualizarProgreso = async (habitoId, usuarioId) => {
   try {
-    const res = await API.put(`/ActualizarProgreso/${habitoId}`);
+    const res = await API.put(`/ActualizarProgreso/${habitoId}`, {
+      usuarioId // 👈 ahora sí lo mandas
+    });
+
     return {
       success: true,
       data: res.data,
       message: "Progreso actualizado exitosamente",
     };
   } catch (error) {
-    console.error("Error al obtener hábitos del usuario:", error);
+    console.error("Error al actualizar progreso:", error);
 
     return {
       success: false,
-      message: error.response?.data?.message || "Error al obtener hábitos",
+      message: error.response?.data?.message || "Error al actualizar progreso",
     };
   }
 };
@@ -102,13 +105,13 @@ export const obtenerHabitosUsuario = async (usuarioID) => {
 };
 
 // PARA APLICAR EL PROTOTYPE
-export const clonarHabito = async (habitoId, usuarioID) => {
+export const clonarHabito = async (habitoId, usuarioId) => {
   try {
     console.log("Clonando hábito con ID:", habitoId); // Debug
     
     // Usar API.post correctamente (API es tu instancia de axios)
     const response = await API.post(`/clonar/${habitoId}`,{
-        usuarioID
+        usuarioId
     });
     
     console.log("Respuesta del servidor:", response.data); // Debug
@@ -141,5 +144,48 @@ export const clonarHabito = async (habitoId, usuarioID) => {
         message: error.message || "Error al realizar la petición",
       };
     }
+  }
+};
+
+export const editarHabito = async (habitoId, habitoData) => {
+  try {
+    const response = await API.put(`/editar/${habitoId}`, habitoData);
+
+    return {
+      success: true,
+      data: response.data.data, // 🔥 SOLO el hábito
+      message: response.data.message,
+    };
+
+  } catch (error) {
+    console.error("Error al editar hábito:", error);
+
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al editar el hábito",
+    };
+  }
+};
+
+export const eliminarHabito = async (habitoId, usuarioId) => {
+  try {
+    const res = await API.delete(`/eliminar/${habitoId}`, {
+      data: { usuarioId }, // 🔥 importante en DELETE
+    });
+
+    return {
+      success: true,
+      data: res.data,
+      message: "Hábito eliminado correctamente",
+    };
+  } catch (error) {
+    console.error("Error al eliminar hábito:", error);
+
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        "Error al eliminar el hábito",
+    };
   }
 };

@@ -3,15 +3,18 @@ import { useMemo, useState, useEffect } from "react";
 import { FiActivity, FiCheckSquare, FiPlus } from "react-icons/fi";
 import BarraLateralPanel from "../components/dashboard/BarraLateralPanel";
 import BarraSuperiorPanel from "../components/dashboard/BarraSuperiorPanel";
-import TarjetaHabito from "../components/dashboard/TarjetaHabito";
+import HabitoCard from "../components/HabitoCard";
 import ModalHabito from "../components/dashboard/ModalHabito";
 import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
+import HistorialUsuario from "../components/dashboard/HistorialUsuario";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
+import SeccionEstadisticas from "../components/dashboard/SeccionEstadisticas";
 
-import { obtenerHabitosUsuario } from "../../src/service/usuarioService";
+import { obtenerHabitosUsuario, estadisticasUsuario } from "../../src/service/usuarioService";
 import {
   actualizarProgreso,
   clonarHabito,
+  eliminarHabito,
 } from "../../src/service/habitoService";
 
 function PanelPrincipal() {
@@ -21,6 +24,7 @@ function PanelPrincipal() {
   const [habitoEnEdicion, setHabitoEnEdicion] = useState(null);
   const [sugerenciaSeleccionada, setSugerenciaSeleccionada] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
+  const [estadisticas, setEstadisticas] = useState(null);
 
   // 🔥 Función para formatear hábitos (reutilizable)
   const formatearHabitos = (habitosData) => {
@@ -37,7 +41,10 @@ function PanelPrincipal() {
       progreso: h.progreso?.progreso || 0,
       frecuencia: h.progreso?.frecuencia,
       periodo: h.progreso?.periodo,
-      notificaciones: h.notificaciones || [], // 👈 AGREGADO: array de notificaciones
+      notificaciones: h.notificaciones || [],
+      diasSeleccionados: Array.isArray(h.diasSeleccionados) ? h.diasSeleccionados: [],
+      frecuenciaSemanal: h.progreso?.frecuenciaSemanal || 0,
+      subHabitos: h.subHabitos || [],
     }));
   };
 
@@ -47,7 +54,10 @@ function PanelPrincipal() {
   };
 
   const abrirEditarHabito = (habito) => {
-    setHabitoEnEdicion(habito);
+    setHabitoEnEdicion({
+      ...habito,
+      diasSeleccionados: habito.diasSeleccionados || [],
+    });
     setMostrarModal(true);
   };
 
@@ -115,16 +125,24 @@ function PanelPrincipal() {
     setHabitos((prev) => [nuevoHabito, ...prev]);
   };
 
-  const actualizarHabito = (datosProcesados) => {
-    setHabitos((prev) =>
-      prev.map((habito) =>
-        habito.id === habitoEnEdicion.id
+  const actualizarHabito = (habitoActualizado) => {
+    setHabitos(prev =>
+      prev.map(h =>
+        h.id === habitoActualizado._id
           ? {
-              ...habito,
-              ...datosProcesados,
+              ...h,
+              nombre: habitoActualizado.nombre,
+              descripcion: habitoActualizado.descripcion,
+              categoria: habitoActualizado.categoria?.nombreCategoria,
+              horario: habitoActualizado.horario,
+              fechaInicio: habitoActualizado.fechaInicio,
+              fechaFin: habitoActualizado.fechaFin,
+              progreso: habitoActualizado.progreso?.progreso,
+              frecuencia: habitoActualizado.progreso?.frecuencia,
+              periodo: habitoActualizado.progreso?.periodo
             }
-          : habito,
-      ),
+          : h
+      )
     );
   };
 
@@ -142,11 +160,11 @@ function PanelPrincipal() {
   };
 
   const completarHabito = async (id) => {
-    const res = await actualizarProgreso(id);
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    const res = await actualizarProgreso(id, usuario._id);
 
     if (res.success) {
-      // Recargar desde backend
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
       const habitosActualizados = await obtenerHabitosUsuario(usuario._id);
 
       if (habitosActualizados.success) {
@@ -158,11 +176,27 @@ function PanelPrincipal() {
     }
   };
 
-  const eliminarHabito = (id) => {
-    setHabitos((prev) => prev.filter((habito) => habito.id !== id));
+  const eliminarHabitoHandler = async (id) => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    if (detalleHabito && detalleHabito.id === id) {
-      setDetalleHabito(null);
+    if (!usuario?._id) {
+      console.error("Usuario no encontrado");
+      return;
+    }
+
+    if (!window.confirm("¿Seguro que quieres eliminar este hábito?")) return;
+
+    const res = await eliminarHabito(id, usuario._id);
+
+    if (res.success) {
+      // 🔥 actualizar estado local
+      setHabitos((prev) => prev.filter((habito) => habito.id !== id));
+
+      if (detalleHabito && detalleHabito.id === id) {
+        setDetalleHabito(null);
+      }
+    } else {
+      console.error(res.message);
     }
   };
 
@@ -199,16 +233,28 @@ function PanelPrincipal() {
     setDetalleHabito(habito);
   };
 
+  const rutinas = useMemo(() => {
+    return habitos.filter(h => h.subHabitos && h.subHabitos.length > 0);
+  }, [habitos]);  
+
+  const habitosSimples = useMemo(() => {
+    return habitos.filter(h => !h.subHabitos || h.subHabitos.length === 0);
+  }, [habitos]);
+
   const resumen = useMemo(() => {
     const activos = habitos.length;
-    const completados = habitos.filter(
-      (habito) => habito.progreso >= 100,
-    ).length;
+    const completados = estadisticas?.resumen?.completados || 0;
 
     return [
       {
         titulo: "Hábitos activos",
         valor: `${activos}`,
+        descripcion: "Rutinas en seguimiento",
+        icono: <FiActivity />,
+      },
+      {
+        titulo: "Rutinas Activas",
+        valor: `${rutinas.length}`,
         descripcion: "Rutinas en seguimiento",
         icono: <FiActivity />,
       },
@@ -233,15 +279,6 @@ function PanelPrincipal() {
 
       const res = await obtenerHabitosUsuario(usuario._id);
 
-      console.log("=== RESPUESTA DEL BACKEND ===");
-      console.log("res completo:", res);
-      console.log("res.data:", res.data);
-      console.log("Primer hábito:", res.data?.[0]);
-      console.log(
-        "Notificaciones del primer hábito:",
-        res.data?.[0]?.notificaciones,
-      );
-
       if (res.success) {
         const habitosFormateados = formatearHabitos(res.data);
         setHabitos(habitosFormateados);
@@ -251,7 +288,24 @@ function PanelPrincipal() {
     };
 
     cargarHabitos();
-  }, []);
+
+      // Cargar estadísticas
+      const cargarEstadisticas = async () => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      if (!usuario?._id) return;
+
+      const res = await estadisticasUsuario(usuario._id);
+
+      if (res.success) {
+        setEstadisticas(res.data);
+      } else {
+        console.error(res.message);
+      }
+    };
+
+    cargarEstadisticas();
+    }, []);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
@@ -270,6 +324,8 @@ function PanelPrincipal() {
       hour12: true,
     });
   };
+
+
 
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: "100vh" }}>
@@ -314,7 +370,7 @@ function PanelPrincipal() {
               <section className="mb-4">
                 <div className="row g-4">
                   {resumen.map((item) => (
-                    <div className="col-12 col-md-6" key={item.titulo}>
+                    <div className="col-12 col-md-4" key={item.titulo}>
                       <div className="card tarjeta-resumen h-100">
                         <div className="card-body p-4 d-flex align-items-center gap-3">
                           <div className="icono-resumen">{item.icono}</div>
@@ -347,11 +403,11 @@ function PanelPrincipal() {
                 <div className="row g-4">
                   {habitos.map((habito) => (
                     <div className="col-12 col-md-6 col-xl-4" key={habito.id}>
-                      <TarjetaHabito
+                      <HabitoCard
                         habito={habito}
                         alCompletar={completarHabito}
                         alEditar={abrirEditarHabito}
-                        alEliminar={eliminarHabito}
+                        alEliminar={eliminarHabitoHandler}
                         alVerDetalle={verDetalleHabito}
                         alClonar={clonarHabitoHandler}
                       />
@@ -371,27 +427,20 @@ function PanelPrincipal() {
           />
         )}
 
-        {seccionActiva === "estadisticas" && (
+        {seccionActiva === "historial" && (
           <main className="p-4 p-lg-5">
-            <section className="text-center py-5">
-              <h2 className="fw-bold mb-3">Estadísticas</h2>
-              <p className="text-muted">
-                Esta sección de estadísticas será implementada próximamente.
-              </p>
-            </section>
+            <HistorialUsuario
+              idUsuario={JSON.parse(localStorage.getItem("usuario"))?._id}
+            />
           </main>
         )}
 
-        {seccionActiva === "historial" && (
-          <main className="p-4 p-lg-5">
-            <section className="text-center py-5">
-              <h2 className="fw-bold mb-3">Historial</h2>
-              <p className="text-muted">
-                Esta sección de historial será implementada próximamente.
-              </p>
-            </section>
-          </main>
-        )}
+        {seccionActiva === "estadisticas" && (
+        <SeccionEstadisticas
+          usuarioId={JSON.parse(localStorage.getItem("usuario"))?._id}
+        />
+      )}
+
       </div>
 
       <ModalHabito
