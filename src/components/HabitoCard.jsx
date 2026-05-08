@@ -72,10 +72,6 @@ function HabitoCard({
 
   const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
   const rachaActual = calcularRacha(historial, habito._id || habito.id);
-  console.log("RACHA EN CARD:", rachaActual);
-  // console.log("HISTORIAL:", historial);
-  // console.log("HABITO:", habito._id || habito.id);
-  // console.log("PRIMER REGISTRO:", historial[0]);
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
     return new Date(fecha).toLocaleDateString("es-CO", {

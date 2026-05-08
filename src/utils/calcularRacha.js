@@ -47,7 +47,6 @@ export const calcularRacha = (historial, habitoId) => {
     }
   }
 
-  console.log("RACHA:", racha);
 
   return racha;
 };
