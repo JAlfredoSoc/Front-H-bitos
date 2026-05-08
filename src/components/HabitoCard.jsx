@@ -9,9 +9,15 @@ import {
 } from "react-icons/fi";
 import { obtenerFactoryHabito } from "../factories/factorySelector";
 import { useState } from "react";
+import HabitoBase from "../decorators/HabitoBase";
+import PrioridadDecorator from "../decorators/PrioridadDecorator";
+import MotivacionDecorator from "../decorators/MotivacionDecorator";
+import RachaDecorator from "../decorators/RachaDecorator";
+import { calcularRacha } from "../utils/calcularRacha";
 
 function HabitoCard({
   habito,
+  historial,
   alCompletar,
   alEditar,
   alEliminar,
@@ -22,8 +28,50 @@ function HabitoCard({
   const badgeClass = factory.getBadgeClass();
   const progressBarClass = factory.getProgressBarClass();
   const [subActivo, setSubActivo] = useState(null);
+  const habitId = habito._id || habito.id;
+
+  const obtenerDecoradoresGuardados = () => {
+    const guardados =
+      JSON.parse(localStorage.getItem("decoradoresHabitos")) || {};
+
+    return (
+      guardados[habitId] || {
+        prioridad: false,
+        motivacion: false,
+        racha: false,
+      }
+    );
+  };
+
+  const decoradoresIniciales = obtenerDecoradoresGuardados();
+
+  const [usarPrioridad, setUsarPrioridad] = useState(
+    decoradoresIniciales.prioridad,
+  );
+
+  const [usarMotivacion, setUsarMotivacion] = useState(
+    decoradoresIniciales.motivacion,
+  );
+
+  const [usarRacha, setUsarRacha] = useState(decoradoresIniciales.racha);
+
+  const [mostrarDecoradores, setMostrarDecoradores] = useState(false);
+
+  const guardarDecoradores = (prioridad, motivacion, racha) => {
+    const guardados =
+      JSON.parse(localStorage.getItem("decoradoresHabitos")) || {};
+
+    guardados[habitId] = {
+      prioridad,
+      motivacion,
+      racha,
+    };
+
+    localStorage.setItem("decoradoresHabitos", JSON.stringify(guardados));
+  };
 
   const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
+  const rachaActual = calcularRacha(historial, habito._id || habito.id);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
@@ -110,7 +158,7 @@ function HabitoCard({
   const tieneNotificacion =
     habito.notificaciones && habito.notificaciones.length > 0;
 
-  const renderSimple =()  => (
+  const renderSimple = () => (
     <div className="card-body p-4 d-flex flex-column">
       <div className="d-flex justify-content-between align-items-start mb-3">
         <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -119,8 +167,7 @@ function HabitoCard({
             <span
               className="d-inline-flex align-items-center gap-1 text-primary"
               title="Notificaciones activas"
-              style={{ fontSize: "0.75rem" }}
-            >
+              style={{ fontSize: "0.75rem" }}>
               <FiBell size={12} />
               <span className="d-none d-sm-inline">Recordatorio</span>
             </span>
@@ -130,7 +177,7 @@ function HabitoCard({
       </div>
 
       <h5 className="fw-bold mb-2">{habito.nombre}</h5>
-      <p className="text-muted mb-3">{habito.descripcion}</p> 
+      <p className="text-muted mb-3">{habito.descripcion}</p>
 
       <div className="row g-3 mb-3">
         <div className="col-6">
@@ -254,35 +301,88 @@ function HabitoCard({
         <button
           className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3"
           onClick={() => alCompletar(habito._id || habito.id)}
-          disabled={habito.progreso >= 100}
-        >
+          disabled={habito.progreso >= 100}>
           <FiCheckCircle />
           <span>Completar</span>
         </button>
 
         <button
           className="btn btn-suave btn-sm d-flex align-items-center gap-2"
-          onClick={() => alEditar(habito)}
-        >
+          onClick={() => alEditar(habito)}>
           <FiEdit2 />
           <span>Editar</span>
         </button>
 
         <button
           className="btn btn-suave btn-sm d-flex align-items-center gap-2"
-          onClick={() => alClonar(habito._id || habito.id)}
-        >
+          onClick={() => alClonar(habito._id || habito.id)}>
           <FiCopy />
           <span>Clonar</span>
         </button>
 
         <button
           className="btn btn-suave btn-sm d-flex align-items-center gap-2"
-          onClick={() => alEliminar(habito._id || habito.id)}
-        >
+          onClick={() => alEliminar(habito._id || habito.id)}>
           <FiTrash2 />
           <span>Eliminar</span>
         </button>
+
+        <button
+          className="btn btn-warning btn-sm"
+          onClick={() => setMostrarDecoradores(!mostrarDecoradores)}>
+          🎨 Decorar
+        </button>
+        {mostrarDecoradores && (
+          <div className="mt-2 d-flex gap-2 flex-wrap">
+            <button
+              className={`btn btn-sm ${
+                usarPrioridad ? "btn-danger" : "btn-outline-danger"
+              }`}
+              onClick={() => {
+                const nuevoValor = !usarPrioridad;
+
+                setUsarPrioridad(nuevoValor);
+
+                guardarDecoradores(nuevoValor, usarMotivacion, usarRacha);
+
+                setMostrarDecoradores(false);
+              }}>
+              🔥 Prioridad
+            </button>
+
+            <button
+              className={`btn btn-sm ${
+                usarMotivacion ? "btn-warning" : "btn-outline-warning"
+              }`}
+              onClick={() => {
+                const nuevoValor = !usarMotivacion;
+
+                setUsarMotivacion(nuevoValor);
+
+                guardarDecoradores(usarPrioridad, nuevoValor, usarRacha);
+
+                setMostrarDecoradores(false);
+              }}>
+              💬 Motivación
+            </button>
+
+            <button
+              className={`btn btn-sm ${
+                usarRacha ? "btn-info" : "btn-outline-info"
+              }`}
+              onClick={() => {
+                const nuevoValor = !usarRacha;
+
+                setUsarRacha(nuevoValor);
+
+                guardarDecoradores(usarPrioridad, usarMotivacion, nuevoValor);
+
+                setMostrarDecoradores(false);
+              }}>
+              ⚡ Racha
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -304,14 +404,12 @@ function HabitoCard({
           return (
             <div
               key={sub._id}
-              className="p-3 border rounded d-flex flex-column gap-2"
-            >
+              className="p-3 border rounded d-flex flex-column gap-2">
               {/* HEADER CLICKABLE */}
               <div
                 className="d-flex justify-content-between align-items-center"
                 style={{ cursor: "pointer" }}
-                onClick={() => setSubActivo(estaAbierto ? null : sub._id)}
-              >
+                onClick={() => setSubActivo(estaAbierto ? null : sub._id)}>
                 <div>
                   <div className="fw-semibold">{sub.nombre}</div>
                   <small className="text-muted">{sub.descripcion}</small>
@@ -320,8 +418,7 @@ function HabitoCard({
                 <span
                   className={`badge ${
                     sub.estado === "completado" ? "bg-success" : "bg-secondary"
-                  }`}
-                >
+                  }`}>
                   {sub.estado}
                 </span>
               </div>
@@ -338,8 +435,7 @@ function HabitoCard({
               <button
                 className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3"
                 onClick={() => alCompletar(sub._id)}
-                disabled={progresoSub >= totalSub}
-              >
+                disabled={progresoSub >= totalSub}>
                 <FiCheckCircle />
                 <span>Completar</span>
               </button>
@@ -410,11 +506,34 @@ function HabitoCard({
     return Math.round(suma / total);
   };
 
+  // return factory.renderContainer(esRutina ? renderRutina() : renderSimple());
+  let contenido = esRutina ? renderRutina() : renderSimple();
 
+  if (!esRutina) {
+    let habitoDecorado = new HabitoBase(
+      contenido,
+      {
+        ...habito,
+        rachaActual,
+      }
+    );
 
-  return factory.renderContainer(
-    esRutina ? renderRutina() : renderSimple()
-  );
+    if (usarPrioridad) {
+      habitoDecorado = new PrioridadDecorator(habitoDecorado);
+    }
+
+    if (usarMotivacion) {
+      habitoDecorado = new MotivacionDecorator(habitoDecorado);
+    }
+
+    if (usarRacha) {
+      habitoDecorado = new RachaDecorator(habitoDecorado);
+    }
+
+    contenido = habitoDecorado.render();
+  }
+
+  return factory.renderContainer(contenido);
 }
 
 export default HabitoCard;

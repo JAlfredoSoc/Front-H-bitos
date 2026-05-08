@@ -9,8 +9,11 @@ import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
 import HistorialUsuario from "../components/dashboard/HistorialUsuario";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
 import SeccionEstadisticas from "../components/dashboard/SeccionEstadisticas";
-
-import { obtenerHabitosUsuario, estadisticasUsuario } from "../../src/service/usuarioService";
+import { obtenerHistorialUsuario } from "../service/historialService";
+import {
+  obtenerHabitosUsuario,
+  estadisticasUsuario,
+} from "../../src/service/usuarioService";
 import {
   actualizarProgreso,
   clonarHabito,
@@ -25,6 +28,7 @@ function PanelPrincipal() {
   const [sugerenciaSeleccionada, setSugerenciaSeleccionada] = useState(null);
   const [detalleHabito, setDetalleHabito] = useState(null);
   const [estadisticas, setEstadisticas] = useState(null);
+  const [historial, setHistorial] = useState(null);
 
   // 🔥 Función para formatear hábitos (reutilizable)
   const formatearHabitos = (habitosData) => {
@@ -42,7 +46,9 @@ function PanelPrincipal() {
       frecuencia: h.progreso?.frecuencia,
       periodo: h.progreso?.periodo,
       notificaciones: h.notificaciones || [],
-      diasSeleccionados: Array.isArray(h.diasSeleccionados) ? h.diasSeleccionados: [],
+      diasSeleccionados: Array.isArray(h.diasSeleccionados)
+        ? h.diasSeleccionados
+        : [],
       frecuenciaSemanal: h.progreso?.frecuenciaSemanal || 0,
       subHabitos: h.subHabitos || [],
     }));
@@ -126,8 +132,8 @@ function PanelPrincipal() {
   };
 
   const actualizarHabito = (habitoActualizado) => {
-    setHabitos(prev =>
-      prev.map(h =>
+    setHabitos((prev) =>
+      prev.map((h) =>
         h.id === habitoActualizado._id
           ? {
               ...h,
@@ -139,10 +145,10 @@ function PanelPrincipal() {
               fechaFin: habitoActualizado.fechaFin,
               progreso: habitoActualizado.progreso?.progreso,
               frecuencia: habitoActualizado.progreso?.frecuencia,
-              periodo: habitoActualizado.progreso?.periodo
+              periodo: habitoActualizado.progreso?.periodo,
             }
-          : h
-      )
+          : h,
+      ),
     );
   };
 
@@ -234,11 +240,11 @@ function PanelPrincipal() {
   };
 
   const rutinas = useMemo(() => {
-    return habitos.filter(h => h.subHabitos && h.subHabitos.length > 0);
-  }, [habitos]);  
+    return habitos.filter((h) => h.subHabitos && h.subHabitos.length > 0);
+  }, [habitos]);
 
   const habitosSimples = useMemo(() => {
-    return habitos.filter(h => !h.subHabitos || h.subHabitos.length === 0);
+    return habitos.filter((h) => !h.subHabitos || h.subHabitos.length === 0);
   }, [habitos]);
 
   const resumen = useMemo(() => {
@@ -289,8 +295,8 @@ function PanelPrincipal() {
 
     cargarHabitos();
 
-      // Cargar estadísticas
-      const cargarEstadisticas = async () => {
+    // Cargar estadísticas
+    const cargarEstadisticas = async () => {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
 
       if (!usuario?._id) return;
@@ -302,10 +308,16 @@ function PanelPrincipal() {
       } else {
         console.error(res.message);
       }
+
+      const historialRes = await obtenerHistorialUsuario(usuario._id);
+
+      if (historialRes.success) {
+        setHistorial(historialRes.data);
+      }
     };
 
     cargarEstadisticas();
-    }, []);
+  }, []);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
@@ -324,8 +336,6 @@ function PanelPrincipal() {
       hour12: true,
     });
   };
-
-
 
   return (
     <div className="d-flex fondo-panel" style={{ minHeight: "100vh" }}>
@@ -405,6 +415,7 @@ function PanelPrincipal() {
                     <div className="col-12 col-md-6 col-xl-4" key={habito.id}>
                       <HabitoCard
                         habito={habito}
+                        historial={historial}
                         alCompletar={completarHabito}
                         alEditar={abrirEditarHabito}
                         alEliminar={eliminarHabitoHandler}
@@ -436,11 +447,10 @@ function PanelPrincipal() {
         )}
 
         {seccionActiva === "estadisticas" && (
-        <SeccionEstadisticas
-          usuarioId={JSON.parse(localStorage.getItem("usuario"))?._id}
-        />
-      )}
-
+          <SeccionEstadisticas
+            usuarioId={JSON.parse(localStorage.getItem("usuario"))?._id}
+          />
+        )}
       </div>
 
       <ModalHabito
