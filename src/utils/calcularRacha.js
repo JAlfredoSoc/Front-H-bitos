@@ -1,50 +1,53 @@
 export const calcularRacha = (historial, habitoId) => {
   if (!historial || historial.length === 0) return 0;
 
-  // Filtrar registros del hábito
-  const registrosHabito = historial
-    .filter((h) => h.habitoId === habitoId)
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  const registrosHabito = historial.filter(
+    (item) =>
+      String(item.habito?._id) === String(habitoId)
+  );
+
+  
 
   if (registrosHabito.length === 0) return 0;
 
-  // Convertir fechas a YYYY-MM-DD
-  const fechas = registrosHabito.map((r) =>
-    new Date(r.fecha).toISOString().split("T")[0]
-  );
+  const fechasUnicas = [
+    ...new Set(
+      registrosHabito.map((item) =>
+        new Date(item.fecha).toDateString()
+      )
+    ),
+  ];
 
-  // Eliminar duplicados
-  const fechasUnicas = [...new Set(fechas)];
+  
 
-  let racha = 0;
+  const fechasOrdenadas = fechasUnicas
+    .map((fecha) => new Date(fecha))
+    .sort((a, b) => b - a);
 
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
+  
 
-  for (let i = 0; i < fechasUnicas.length; i++) {
-    const fechaRegistro = new Date(fechasUnicas[i]);
-    fechaRegistro.setHours(0, 0, 0, 0);
+  // 🔥 si solo hay un día registrado
+  if (fechasOrdenadas.length === 1) {
+    return 1;
+  }
 
-    const diferenciaDias = Math.floor(
-      (hoy - fechaRegistro) / (1000 * 60 * 60 * 24)
-    );
+  let racha = 1;
 
-    // Hoy
-    if (i === 0 && diferenciaDias === 0) {
+  for (let i = 0; i < fechasOrdenadas.length - 1; i++) {
+    const actual = fechasOrdenadas[i];
+    const siguiente = fechasOrdenadas[i + 1];
+
+    const diferenciaDias =
+      (actual - siguiente) / (1000 * 60 * 60 * 24);
+
+    if (diferenciaDias === 1) {
       racha++;
-      hoy.setDate(hoy.getDate() - 1);
-    }
-
-    // Ayer, antier, etc consecutivos
-    else if (diferenciaDias === racha) {
-      racha++;
-    }
-
-    // Se rompió
-    else {
+    } else {
       break;
     }
   }
+
+  console.log("RACHA:", racha);
 
   return racha;
 };

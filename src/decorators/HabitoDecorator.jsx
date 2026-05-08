@@ -1,13 +1,11 @@
 class HabitoDecorator {
-  constructor(habitoComponent) {
-    this.habitoComponent = habitoComponent;
-
-    // 🔥 IMPORTANTE
-    this.habito = habitoComponent.habito;
+  constructor(habitoDecorado) {
+    this.habitoDecorado = habitoDecorado;
+    this.habito = habitoDecorado.habito;
   }
 
   render() {
-    return this.habitoComponent.render();
+    return this.habitoDecorado.render();
   }
 }
 

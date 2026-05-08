@@ -72,7 +72,10 @@ function HabitoCard({
 
   const esRutina = habito.subHabitos && habito.subHabitos.length > 0;
   const rachaActual = calcularRacha(historial, habito._id || habito.id);
-
+  console.log("RACHA EN CARD:", rachaActual);
+  // console.log("HISTORIAL:", historial);
+  // console.log("HABITO:", habito._id || habito.id);
+  // console.log("PRIMER REGISTRO:", historial[0]);
   const formatearFecha = (fecha) => {
     if (!fecha) return "No definida";
     return new Date(fecha).toLocaleDateString("es-CO", {
@@ -509,31 +512,31 @@ function HabitoCard({
   // return factory.renderContainer(esRutina ? renderRutina() : renderSimple());
   let contenido = esRutina ? renderRutina() : renderSimple();
 
-  if (!esRutina) {
-    let habitoDecorado = new HabitoBase(
-      contenido,
-      {
-        ...habito,
-        rachaActual,
-      }
-    );
-
-    if (usarPrioridad) {
-      habitoDecorado = new PrioridadDecorator(habitoDecorado);
+if (!esRutina) {
+  let habitoDecorado = new HabitoBase(
+    contenido,
+    {
+      ...habito,
+      rachaActual,
     }
+  );
 
-    if (usarMotivacion) {
-      habitoDecorado = new MotivacionDecorator(habitoDecorado);
-    }
-
-    if (usarRacha) {
-      habitoDecorado = new RachaDecorator(habitoDecorado);
-    }
-
-    contenido = habitoDecorado.render();
+  if (usarPrioridad) {
+    habitoDecorado = new PrioridadDecorator(habitoDecorado);
   }
 
-  return factory.renderContainer(contenido);
+  if (usarMotivacion) {
+    habitoDecorado = new MotivacionDecorator(habitoDecorado);
+  }
+
+  if (usarRacha) {
+    habitoDecorado = new RachaDecorator(habitoDecorado);
+  }
+
+  contenido = habitoDecorado.render();
+}
+
+return factory.renderContainer(contenido);
 }
 
 export default HabitoCard;
