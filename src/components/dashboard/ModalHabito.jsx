@@ -35,7 +35,7 @@ function ModalHabito({
   const [subHabitos, setSubHabitos] = useState([]);
   const [nuevoSub, setNuevoSub] = useState({
     nombre: "",
-    descripcion: ""
+    descripcion: "",
   });
 
   // Cargar categorías
@@ -63,7 +63,9 @@ function ModalHabito({
 
   useEffect(() => {
     if (formulario.periodo === "semanal") {
-      const total = Number(formulario.frecuencia * formulario.diasSeleccionados.length);
+      const total = Number(
+        formulario.frecuencia * formulario.diasSeleccionados.length,
+      );
 
       setTotalRepeticiones(total);
     } else {
@@ -77,20 +79,26 @@ function ModalHabito({
       setFormulario({
         nombre: habitoEnEdicion.nombre || "",
         descripcion: habitoEnEdicion.descripcion || "",
-        categoria: habitoEnEdicion.categoria?._id || habitoEnEdicion.categoria || "",
-        horario: habitoEnEdicion.horario 
-          ? new Date(habitoEnEdicion.horario).toTimeString().slice(0, 5) 
+        categoria:
+          habitoEnEdicion.categoria?._id || habitoEnEdicion.categoria || "",
+        horario: habitoEnEdicion.horario
+          ? new Date(habitoEnEdicion.horario).toTimeString().slice(0, 5)
           : "",
         fechaInicio: habitoEnEdicion.fechaInicio?.split("T")[0] || "",
         fechaFin: habitoEnEdicion.fechaFin?.split("T")[0] || "",
-        periodo: habitoEnEdicion.periodo || habitoEnEdicion.progreso?.periodo || "",
-        frecuencia: habitoEnEdicion.frecuencia || habitoEnEdicion.progreso?.frecuencia || "",
+        periodo:
+          habitoEnEdicion.periodo || habitoEnEdicion.progreso?.periodo || "",
+        frecuencia:
+          habitoEnEdicion.frecuencia ||
+          habitoEnEdicion.progreso?.frecuencia ||
+          "",
 
         // 🔥 ESTA ES LA LÍNEA QUE TE FALTA
         diasSeleccionados: habitoEnEdicion.diasSeleccionados || [],
 
         notificacionActiva: habitoEnEdicion.notificacionConfig?.activa || false,
-        tipoNotificacion: habitoEnEdicion.notificacionConfig?.medio || "recordatorio",
+        tipoNotificacion:
+          habitoEnEdicion.notificacionConfig?.medio || "recordatorio",
       });
     } else if (sugerenciaSeleccionada) {
       setFormulario({
@@ -104,7 +112,7 @@ function ModalHabito({
         frecuencia: sugerenciaSeleccionada.frecuencia || "",
         notificacionActiva: false,
         tipoNotificacion: "recordatorio",
-        diasSeleccionados: []
+        diasSeleccionados: [],
       });
     } else {
       setFormulario(estadoInicial);
@@ -145,7 +153,8 @@ function ModalHabito({
     if (!formulario.descripcion.trim()) {
       nuevosErrores.descripcion = "La descripción es obligatoria.";
     } else if (formulario.descripcion.trim().length < 8) {
-      nuevosErrores.descripcion = "La descripción debe tener al menos 8 caracteres.";
+      nuevosErrores.descripcion =
+        "La descripción debe tener al menos 8 caracteres.";
     }
 
     if (!formulario.categoria) {
@@ -158,7 +167,8 @@ function ModalHabito({
 
     if (formulario.fechaInicio && formulario.fechaFin) {
       if (new Date(formulario.fechaFin) < new Date(formulario.fechaInicio)) {
-        nuevosErrores.fechaFin = "La fecha fin no puede ser menor que la fecha inicio.";
+        nuevosErrores.fechaFin =
+          "La fecha fin no puede ser menor que la fecha inicio.";
       }
     }
 
@@ -170,7 +180,10 @@ function ModalHabito({
       nuevosErrores.frecuencia = "La frecuencia es obligatoria.";
     }
 
-    if ((formulario.periodo === "semanal" || formulario.periodo === "diario") && formulario.diasSeleccionados.length === 0) {
+    if (
+      (formulario.periodo === "semanal" || formulario.periodo === "diario") &&
+      formulario.diasSeleccionados.length === 0
+    ) {
       nuevosErrores.diasSeleccionados = "Selecciona al menos un día.";
     }
 
@@ -180,7 +193,8 @@ function ModalHabito({
 
   const procesarDatosHabito = () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    const fechaBase = formulario.fechaInicio || new Date().toISOString().split("T")[0];
+    const fechaBase =
+      formulario.fechaInicio || new Date().toISOString().split("T")[0];
     const horarioCompleto = new Date(`${fechaBase}T${formulario.horario}`);
 
     const fechaFinCalculada = calcularFechaFin();
@@ -197,8 +211,8 @@ function ModalHabito({
       periodo: formulario.periodo,
       frecuencia: formulario.frecuencia,
 
-      diasSeleccionados: formulario.diasSeleccionados, 
-      frecuenciaSemanal: frecuenciaSemanalCalculada, 
+      diasSeleccionados: formulario.diasSeleccionados,
+      frecuenciaSemanal: frecuenciaSemanalCalculada,
 
       notificacionActiva: formulario.notificacionActiva,
       tipoNotificacion: formulario.tipoNotificacion,
@@ -222,7 +236,7 @@ function ModalHabito({
     if (habitoEnEdicion) {
       resultado = await editarHabito(
         habitoEnEdicion._id || habitoEnEdicion.id,
-        datosProcesados
+        datosProcesados,
       );
     } else {
       resultado = await crearHabito(datosProcesados);
@@ -258,7 +272,6 @@ function ModalHabito({
     });
   };
 
-
   const calcularFechaFin = () => {
     if (!formulario.fechaInicio) return null;
 
@@ -286,17 +299,14 @@ function ModalHabito({
     return null;
   };
 
-
   const calcularFrecuenciaSemanal = () => {
     if (formulario.periodo === "semanal") {
-      return Number(formulario.frecuencia) * formulario.diasSeleccionados.length;
+      return (
+        Number(formulario.frecuencia) * formulario.diasSeleccionados.length
+      );
     }
     return 0;
   };
-
-
-
-
 
   if (!mostrar) return null;
 
@@ -304,8 +314,7 @@ function ModalHabito({
     <div
       className="modal d-block"
       tabIndex="-1"
-      style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}
-    >
+      style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content border-0 rounded-4 shadow-lg">
           {/* Header */}
@@ -317,8 +326,8 @@ function ModalHabito({
                     ? "Editar rutina"
                     : "Editar hábito"
                   : tipo === "rutina"
-                  ? "Nueva rutina"
-                  : "Nuevo hábito"}
+                    ? "Nueva rutina"
+                    : "Nuevo hábito"}
               </h4>
               <p className="text-muted mb-0">
                 {habitoEnEdicion
@@ -342,8 +351,7 @@ function ModalHabito({
             {mensajeExito && (
               <div
                 className="alert alert-success alert-dismissible fade show mb-3"
-                role="alert"
-              >
+                role="alert">
                 <i className="bi bi-check-circle-fill me-2"></i>
                 {mensajeExito}
                 <button
@@ -357,8 +365,7 @@ function ModalHabito({
             {mensajeError && (
               <div
                 className="alert alert-danger alert-dismissible fade show mb-3"
-                role="alert"
-              >
+                role="alert">
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
                 {mensajeError}
                 <button
@@ -374,8 +381,7 @@ function ModalHabito({
               <select
                 className="form-select"
                 value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-              >
+                onChange={(e) => setTipo(e.target.value)}>
                 <option value="simple">Hábito simple</option>
                 <option value="rutina">Rutina</option>
               </select>
@@ -462,8 +468,7 @@ function ModalHabito({
 
                           setSubHabitos([...subHabitos, nuevoSub]);
                           setNuevoSub({ nombre: "", descripcion: "" });
-                        }}
-                      >
+                        }}>
                         ➕
                       </button>
                     </div>
@@ -473,8 +478,7 @@ function ModalHabito({
                       {subHabitos.map((sub, index) => (
                         <div
                           key={index}
-                          className="p-2 border rounded d-flex justify-content-between"
-                        >
+                          className="p-2 border rounded d-flex justify-content-between">
                           <div>
                             <div className="fw-semibold">{sub.nombre}</div>
                             <small className="text-muted">
@@ -489,8 +493,7 @@ function ModalHabito({
                               setSubHabitos(
                                 subHabitos.filter((_, i) => i !== index),
                               )
-                            }
-                          >
+                            }>
                             ✕
                           </button>
                         </div>
@@ -507,8 +510,7 @@ function ModalHabito({
                     name="categoria"
                     value={formulario.categoria}
                     onChange={manejarCambio}
-                    disabled={procesando}
-                  >
+                    disabled={procesando}>
                     <option value="">Seleccione una categoría</option>
                     {categorias.map((cat) => (
                       <option key={cat._id} value={cat._id}>
@@ -529,8 +531,7 @@ function ModalHabito({
                     name="periodo"
                     value={formulario.periodo}
                     onChange={manejarCambio}
-                    disabled={procesando}
-                  >
+                    disabled={procesando}>
                     <option value="">Seleccione</option>
                     <option value="diario">Diario</option>
                     <option value="semanal">Semanal</option>
@@ -566,8 +567,7 @@ function ModalHabito({
                               : "btn-outline-primary"
                           }`}
                           onClick={() => manejarSeleccionDia(dia)}
-                          disabled={procesando}
-                        >
+                          disabled={procesando}>
                           {dia}
                         </button>
                       ))}
@@ -654,8 +654,7 @@ function ModalHabito({
                     />
                     <label
                       className="form-check-label fw-semibold"
-                      htmlFor="notificacionActiva"
-                    >
+                      htmlFor="notificacionActiva">
                       🔔 Activar notificaciones
                     </label>
                     <small className="text-muted d-block mt-1">
@@ -678,14 +677,13 @@ function ModalHabito({
                             tipoNotificacion: e.target.value,
                           });
                         }}
-                        disabled={procesando}
-                      >
+                        disabled={procesando}>
                         <option value="email">Correo electrónico</option>
-                        <option value="whatsapp">WhatsApp</option>
-                        <option value="recordatorio">Recordatorio (app)</option>
+                        <option value="telegram">Telegram</option>
+                        <option value="interna">Recordatorio (app)</option>
                       </select>
 
-                      {formulario.tipoNotificacion === "whatsapp" && (
+                      {formulario.tipoNotificacion === "telegram" && (
                         <small className="text-muted d-block mt-2">
                           Asegúrate de tener registrado tu número de teléfono en
                           tu perfil
@@ -707,16 +705,14 @@ function ModalHabito({
                   type="button"
                   className="btn btn-light px-4 py-2 rounded-4"
                   onClick={cerrar}
-                  disabled={procesando}
-                >
+                  disabled={procesando}>
                   Cancelar
                 </button>
 
                 <button
                   type="submit"
                   className="btn btn-primary px-4 py-2 rounded-4"
-                  disabled={procesando}
-                >
+                  disabled={procesando}>
                   {procesando ? (
                     <>
                       <span
