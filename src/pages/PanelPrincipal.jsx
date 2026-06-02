@@ -9,6 +9,7 @@ import SeccionSugerencias from "../components/dashboard/SeccionSugerencias";
 import HistorialUsuario from "../components/dashboard/HistorialUsuario";
 import sugerenciasHabitos from "../../src/components/dashboard/SeccionSugerencias";
 import SeccionEstadisticas from "../components/dashboard/SeccionEstadisticas";
+import NovaCoach from "../components/dashboard/NovaCoach";
 import { obtenerHistorialUsuario } from "../service/historialService";
 import {
   obtenerHabitosUsuario,
@@ -450,6 +451,12 @@ function PanelPrincipal() {
           <SeccionEstadisticas
             usuarioId={JSON.parse(localStorage.getItem("usuario"))?._id}
           />
+        )}
+
+        {seccionActiva === "coach" && (
+          <main style={{ padding: "20px", width: "100%" }}>
+            <NovaCoach webhookUrl="https://dyelamo.app.n8n.cloud/webhook/nova-coach" />
+          </main>
         )}
       </div>
 
